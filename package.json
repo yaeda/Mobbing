@@ -9,6 +9,7 @@
     "express": "3.2.6",
     "express-resource": "*",
     "ejs": "*",
-    "async": "*"
+    "async": "*",
+    "mysql": "~2.0.0-rc1"
   }
 }
