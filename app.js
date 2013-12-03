@@ -9,6 +9,7 @@ var express = require('express')
   , mysql      = require('mysql')
   , http = require('http')
   , path = require('path')
+  , ws = require('./websocket')
   , settings = require('./settings.json');
 
 // create instance
@@ -89,6 +90,9 @@ app.resource('eventuser', require('./routes/eventuser'), apikeys);
 
 
 
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+// initialize websocket
+ws.initialize(server);
