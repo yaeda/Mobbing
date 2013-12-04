@@ -70,6 +70,19 @@ Game.prototype = {
     }
 }
 
+var updatePlayers = function(world, playerId) {
+    var $ul = $('#game_players').empty();
+    for (var id in  world.players) {
+        var $li = $('<li>').text(id);
+        if (id === playerId) {
+            $li.addClass('me');
+            $ul.prepend($li);
+        } else {
+            $ul.append($li);
+        }
+    }
+}
+
 $(function() {
     var roomId = "1";
     var socket = io.connect('/game');
@@ -77,6 +90,7 @@ $(function() {
     var playerId = null;
     socket.on('update', function(world) {
         game.render(world, playerId);
+        updatePlayers(world, playerId);
     });
     socket.on('connected', function(msg) {
         socket.emit('join', roomId);

@@ -10,4 +10,15 @@ a {
 /* Event View */
 #game_field {
     border: 1px solid gray;
+    float: left;
+}
+
+ul {
+    list-style-type: none;
+    float: left;
+}
+
+li.me {
+    font-weight: bold;
+    color: #ea157a;
 }
