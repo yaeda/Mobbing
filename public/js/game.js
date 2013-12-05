@@ -17,6 +17,19 @@ Game.prototype = {
         this.ctx.fill();
     },
 
+    _drawCross: function(x, y, r) {
+        var s = 10 * Math.sin(-r - Math.PI * 45 / 180);
+        var c = 10 * Math.cos(r + Math.PI * 45 / 180);
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + s, y + c);
+        this.ctx.lineTo(x - s, y - c);
+        this.ctx.moveTo(x + c, y - s);
+        this.ctx.lineTo(x - c, y + s);
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = '#FFFFFF';
+        this.ctx.stroke();
+    },
+
     _drawFOV: function(x, y, r, angle, radius, color) {
         this.ctx.beginPath();
         this.ctx.moveTo(x, y);
@@ -57,13 +70,16 @@ Game.prototype = {
                 if (this._canSee(me, p)) {
                     this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(85, 85, 85, 0.3)');
                     this._drawCircle(p.x, p.y, '#555555');
+                    if (p.role == 1) this._drawCross(p.x, p.y, p.r);
                 } else if (DEBUG_MODE) {
                     this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(176, 176, 176, 0.3)');
                     this._drawCircle(p.x, p.y, '#aaaaaa');
+                    if (p.role == 1) this._drawCross(p.x, p.y, p.r);
                 }
             } else {
                 this._drawCircle(p.x, p.y, '#ea157a');
                 this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(234, 21, 122, 0.3)');
+                if (p.role == 1) this._drawCross(p.x, p.y, p.r);
             }
         }
         this.ctx.restore();
