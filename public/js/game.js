@@ -114,19 +114,49 @@ $(function() {
     });
 
     // keycode
-    var DEBUG_KEY = 68; // 'd'
+    var DEBUG_KEY_CODE = 68; // 'd'
+    var SPACE_KEY_CODE = 32;
+    var SHIFT_KEY_CODE = 16;
     var KEYTABLE = {32: 'cw', 37: 'left', 38: 'up', 39: 'right', 40: 'down', 67: 'ccw', 86: 'cw'};
+    var KEYTABLE_SHIFT = {32: 'ccw', 37: 'left', 38: 'up', 39: 'right', 40: 'down', 67: 'ccw', 86: 'cw'};
+    var isSpacePressed = false;
+    var prev = {};
     var sendKey = function(code, shiftStatus, status) {
-        if (KEYTABLE[code] !== undefined)
-            socket.emit('key', {key: KEYTABLE[code], status: status});
+        // reduce event
+        if (prev.code === code && prev.shiftStatus === shiftStatus && prev.status === status)
+            return
+        else {
+            prev.code = code;
+            prev.shiftStatus = shiftStatus;
+            prev.status = status;
+        }
+        // send key
+        var key = shiftStatus ? KEYTABLE_SHIFT[code] : KEYTABLE[code];
+        if (key !== undefined)
+            socket.emit('key', {key: key, status: status});
     };
     $(window).keydown(function(e) {
         e.preventDefault();
-        sendKey(e.keyCode, e.shiftkey, true);
-        if (e.keyCode == DEBUG_KEY) DEBUG_MODE = true;
+        sendKey(e.keyCode, e.shiftKey, true);
+        // for Shift and Space combination
+        if (e.keyCode === SPACE_KEY_CODE) isSpacePressed = true;
+        if (e.keyCode === SHIFT_KEY_CODE && isSpacePressed) {
+            sendKey(SPACE_KEY_CODE, false, false);
+            sendKey(SPACE_KEY_CODE, true, true);
+        }
+        // for Debug
+        if (e.keyCode === DEBUG_KEY_CODE) DEBUG_MODE = true;
     });
     $(window).keyup(function(e) {
         sendKey(e.keyCode, e.shiftKey, false);
-        if (e.keyCode == DEBUG_KEY) DEBUG_MODE = false;
+        // for Shift and Space combination
+        if (e.keyCode === SPACE_KEY_CODE) isSpacePressed = false;
+        if (e.keyCode === SHIFT_KEY_CODE && isSpacePressed) {
+            sendKey(SPACE_KEY_CODE, true, false);
+            sendKey(SPACE_KEY_CODE, false, true);
+        }
+        // for Debug
+        if (e.keyCode === DEBUG_KEY_CODE) DEBUG_MODE = false;
     });
+
 });
