@@ -5,10 +5,20 @@
     <link rel='stylesheet' href='/css/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <h1>Web Game</h1>
     <canvas id="game_field" width="500" height="500"></canvas>
-    <ul id="game_players"></ul>
+    <div class="right-side">
+      <ul>
+        <li><span class="kbd">→</span> right</li>
+        <li><span class="kbd">←</span> left</li>
+        <li><span class="kbd">↑</span> up</li>
+        <li><span class="kbd">↓</span> down</li>
+        <li><span class="kbd">v</span> clockwise</li>
+        <li><span class="kbd">c</span> counter-clockwise</li>
+      </ul>
+      <h2>Participant</h2>
+      <ul id="game_players"></ul>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="/js/game.js"></script>
