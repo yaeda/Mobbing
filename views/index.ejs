@@ -2,25 +2,35 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/css/style.css' />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap//3.0.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
-    <h1>Web Game</h1>
-    <canvas id="game_field" width="500" height="500"></canvas>
-    <div class="right-side">
-      <ul>
-        <li><span class="kbd">→</span> right</li>
-        <li><span class="kbd">←</span> left</li>
-        <li><span class="kbd">↑</span> up</li>
-        <li><span class="kbd">↓</span> down</li>
-        <li><span class="kbd">v</span> or <span class="kbd">space</span> clockwise</li>
-        <li><span class="kbd">c</span> or <span class="kbd">shift</span>+<span class="kbd">space</span> counter-clockwise</li>
-      </ul>
-      <h2>Participant</h2>
-      <ul id="game_players"></ul>
+    <div class="container">
+      <h1>Web Game</h1>
+      <div class="row">
+        <div class="col-md-7">
+          <canvas id="game_field" width="500" height="500"></canvas>
+          <button id="btn_start" class="btn btn-primary btn-lg btn-block">Start</button>
+        </div>
+        <div class="col-md-5">
+          <h3>How to Play</h3>
+          <ul>
+            <li><span class="kbd">→</span> right</li>
+            <li><span class="kbd">←</span> left</li>
+            <li><span class="kbd">↑</span> up</li>
+            <li><span class="kbd">↓</span> down</li>
+            <li><span class="kbd">space</span> clockwise</li>
+            <li><span class="kbd">shift</span>+<span class="kbd">space</span> counter-clockwise</li>
+          </ul>
+          <h3>Participant</h3>
+          <ul id="game_players"></ul>
+        </div>
+      </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="/js/game.js"></script>
+    <script src="/js/main.js"></script>
   </body>
 </html>

@@ -2,41 +2,42 @@
 
 var DEBUG_MODE = false;
 
-var Game = function() {
-    var canvas = document.getElementById('game_field');
-    this.width = canvas.width = 500;
-    this.height = canvas.height = 500;
-    this.ctx = canvas.getContext('2d');
+var Renderer = function() {
+    this.width = 500;
+    this.height = 500;
+    this._canvas = document.getElementById('game_field');
+    this._ctx = this._canvas.getContext('2d');
 }
 
-Game.prototype = {
+Renderer.prototype = {
+
     _drawCircle: function(x, y, color) {
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, 10, 0, Math.PI * 2);
-        this.ctx.fillStyle = color;
-        this.ctx.fill();
+        this._ctx.beginPath();
+        this._ctx.arc(x, y, 10, 0, Math.PI * 2);
+        this._ctx.fillStyle = color;
+        this._ctx.fill();
     },
 
     _drawCross: function(x, y, r) {
         var s = 10 * Math.sin(-r - Math.PI * 45 / 180);
         var c = 10 * Math.cos(r + Math.PI * 45 / 180);
-        this.ctx.beginPath();
-        this.ctx.moveTo(x + s, y + c);
-        this.ctx.lineTo(x - s, y - c);
-        this.ctx.moveTo(x + c, y - s);
-        this.ctx.lineTo(x - c, y + s);
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeStyle = '#FFFFFF';
-        this.ctx.stroke();
+        this._ctx.beginPath();
+        this._ctx.moveTo(x + s, y + c);
+        this._ctx.lineTo(x - s, y - c);
+        this._ctx.moveTo(x + c, y - s);
+        this._ctx.lineTo(x - c, y + s);
+        this._ctx.lineWidth = 2;
+        this._ctx.strokeStyle = '#FFFFFF';
+        this._ctx.stroke();
     },
 
     _drawFOV: function(x, y, r, angle, radius, color) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
-        this.ctx.arc(x, y, radius, r - angle / 2, r + angle / 2);
-        this.ctx.closePath();
-        this.ctx.fillStyle = color;
-        this.ctx.fill();
+        this._ctx.beginPath();
+        this._ctx.moveTo(x, y);
+        this._ctx.arc(x, y, radius, r - angle / 2, r + angle / 2);
+        this._ctx.closePath();
+        this._ctx.fillStyle = color;
+        this._ctx.fill();
     },
 
     _canSee: function(me, other) {
@@ -61,8 +62,8 @@ Game.prototype = {
     },
 
     render: function(world, playerId) {
-        this.ctx.clearRect(0, 0, this.width, this.height);
-        this.ctx.save();
+        this._ctx.clearRect(0, 0, this.width, this.height);
+        this._ctx.save();
         var me = world.players[playerId];
         for (var id in world.players) {
             var p = world.players[id];
@@ -82,38 +83,11 @@ Game.prototype = {
                 if (p.role == 1) this._drawCross(p.x, p.y, p.r);
             }
         }
-        this.ctx.restore();
+        this._ctx.restore();
     }
 }
 
-var updatePlayers = function(world, playerId) {
-    var $ul = $('#game_players').empty();
-    for (var id in  world.players) {
-        var $li = $('<li>').text(id);
-        if (id === playerId) {
-            $li.addClass('me');
-            $ul.prepend($li);
-        } else {
-            $ul.append($li);
-        }
-    }
-}
-
-$(function() {
-    var roomId = "1";
-    var socket = io.connect('/game');
-    var game = new Game();
-    var playerId = null;
-    socket.on('update', function(world) {
-        game.render(world, playerId);
-        updatePlayers(world, playerId);
-    });
-    socket.on('connected', function(msg) {
-        socket.emit('join', roomId);
-        playerId = msg.id;
-    });
-
-    // keycode
+var keyCtrl = function(callback) {
     var DEBUG_KEY_CODE = 68; // 'd'
     var SPACE_KEY_CODE = 32;
     var SHIFT_KEY_CODE = 16;
@@ -124,7 +98,7 @@ $(function() {
     var sendKey = function(code, shiftStatus, status) {
         // reduce event
         if (prev.code === code && prev.shiftStatus === shiftStatus && prev.status === status)
-            return
+            return;
         else {
             prev.code = code;
             prev.shiftStatus = shiftStatus;
@@ -133,7 +107,7 @@ $(function() {
         // send key
         var key = shiftStatus ? KEYTABLE_SHIFT[code] : KEYTABLE[code];
         if (key !== undefined)
-            socket.emit('key', {key: key, status: status});
+            callback(key, status);
     };
     $(window).keydown(function(e) {
         e.preventDefault();
@@ -158,5 +132,110 @@ $(function() {
         // for Debug
         if (e.keyCode === DEBUG_KEY_CODE) DEBUG_MODE = false;
     });
+}
 
-});
+var Game = function(eventId, userId) {
+    if (io === undefined)
+        console.e('socket.io is needed.');
+    if (eventId === undefined || userId === undefined) return;
+
+    // socket
+    this.SOCKET_NAMESPACE_GAME = '/game';
+    this._socket = io.connect(this.SOCKET_NAMESPACE_GAME);
+    var self = this;
+    this._socket.on('connected', function(msg) {
+        self._onConnect.call(self, msg);
+    });
+    this._socket.on('update', function(msg) {
+        self._onUpdate.call(self, msg);
+    });;
+    this._socket.on('start', function(msg) {
+        self._onStart.call(self, msg);
+    });;
+    this._socket.on('end', function(msg) {
+        self._onEnd.call(self, msg);
+    });;
+
+    // key
+    keyCtrl(function(key, status) {
+        self._socket.emit('key', {key: key, status: status});
+    });
+
+    this._socketId = null;
+    this._eventId = eventId;
+    this._userId = userId;
+
+    this._renderer = new Renderer();
+
+    // event listener
+    this._listener = {
+        'start': [],
+        'end': []
+    };
+
+}
+
+Game.prototype = {
+
+    start: function() {
+        this._socket.emit('start');
+    },
+
+    getMyScore: function() {
+        // TODO : Impl
+        return Math.floor(Math.random() * 100);
+    },
+
+    on: function(event, listener) {
+        var list = this._listener[event];
+        if (list !== undefined)
+            list.push(listener);
+    },
+
+    off: function(event, listener) {
+        var list = this._listener[event];
+        if (list !== undefined) {
+            var index = list.indexOf(listener);
+            list.splice(index, 1);
+        }
+    },
+
+    _trigger: function(event, data) {
+        var list = this._listener[event];
+        if (list !== undefined) {
+            for (var i = 0, l = list.length; i < l; i++)
+                list[i](data);
+        }
+    },
+
+    _onConnect: function(msg) {
+        this._socketId = msg.socketId;
+        this._socket.emit('join', {eventId: this._eventId, userId: this._userId});
+    },
+
+    _onStart: function(msg) {
+        this._trigger('start');
+    },
+
+    _onEnd: function(msg) {
+        this._trigger('end');
+    },
+
+    _onUpdate: function(msg) {
+        this._renderer.render.call(this._renderer, msg, this._socketId);
+    }
+
+}
+
+var updatePlayers = function(world, playerId) {
+    var $ul = $('#game_players').empty();
+    for (var id in  world.players) {
+        var $li = $('<li>').text(id);
+        if (id === playerId) {
+            $li.addClass('me');
+            $ul.prepend($li);
+        } else {
+            $ul.append($li);
+        }
+    }
+}
