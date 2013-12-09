@@ -1,9 +1,12 @@
-var Player = function(id) {
+var Player = function(id, userId) {
     this.SPEED_TRANSLATE = 3; // [pixel]
     this.SPEED_ROTATION = 6 * Math.PI / 180; // [radian]
     this.FOV_RADIUS = 100; // [pixel]
     this.FOV_ANGLE = 100 * Math.PI / 180; // [radian]
     this.id = id;
+    this.userId = userId;
+
+    // geometory
     this.x = 0; // [pixel]
     this.y = 0; // [pixel]
     this.r = 0; // [degree]

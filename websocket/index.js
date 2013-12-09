@@ -9,16 +9,27 @@ var initSocket4Game = function(socket) {
     var world = null;
     var player = null;
 
-    socket.on('join', function(worldId) {
+    socket.on('join', function(msg) {
         console.log('join');
+        console.log(msg);
+        var worldId = msg.eventId;
+        var userId = msg.userId;
         // socket
         socket.join(worldId);
         // game
         world = GameManager.getWorld(worldId);
-        player = world.add(socket.id);
-        world.start(function(world) {
-            socket.broadcast.to(worldId).emit('update', {players: world.players});
-        });
+        player = world.add(socket.id, userId);
+    });
+
+    socket.on('start', function() {
+        io.of('/game').in(world.id).emit('start');
+        world.start(
+            function(world) {
+                io.of('/game').in(world.id).emit('update', {players: world.players});
+            },
+            function() {
+                io.of('/game').in(world.id).emit('end');
+            });
     });
 
     socket.on('disconnect', function() {
@@ -52,7 +63,7 @@ module.exports = {
 
         // events : game information (high fps)
         io.of('/game').on('connection', function(socket) {
-            socket.emit('connected', {id: socket.id});
+            socket.emit('connected', {socketId: socket.id});
             initSocket4Game(socket);
         });
     }

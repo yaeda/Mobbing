@@ -5,7 +5,9 @@ var World = function(id) {
     this.players = {};
     this.FPS = 15;
     this.INVINCIBLE_FRAME = 2 * this.FPS; // 5 sec
+    this.GAME_TIME = 1 * 60 * this.FPS; // 1 min
     this._intervalId = null;
+    this._remainTime = null; // [frames]
 }
 
 World.prototype = {
@@ -20,25 +22,33 @@ World.prototype = {
     remove: function(id) {
         var player = this.players[id];
         if (player === undefined) {
-            stop();
+            this.stop();
             return;
         }
         var role = player.role;
         delete this.players[id];
         var numPlayers = Object.keys(this.players).length;
-        if (numPlayers !== 0 && role === 1) {
+        if (numPlayers === 0) {
+            this.stop();
+        } else if (role === 1) {
             var nextEvilId = Math.floor(Math.random() * numPlayers);
             this.players[nextEvilId].role = 1;
         }
     },
 
-    start: function(callback) {
+    start: function(callback, endCallback) {
         if (this._intervalId !== null) return;
+        this._remainTime = this.GAME_TIME;
         var self = this;
         this._intervalId = setInterval(
             function() {
                 self._logic();
+                self._remainTime--;
                 callback(self);
+                if (self._remainTime < 0) {
+                    endCallback();
+                    self.stop();
+                }
             }, 1000 / this.FPS);
     },
 
