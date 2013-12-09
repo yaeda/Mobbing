@@ -79,7 +79,8 @@ var apikeys = {id: 'id'};
 
 // api for this service
 // login
-app.resource('login', require('./routes/login'), apikeys);
+app.post('/login', require('./routes/login').login);
+
 // event
 app.resource('event', require('./routes/event'), apikeys);
 
