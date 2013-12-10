@@ -6,6 +6,13 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
+    <h1>Status</h1>
+    <h3 style="color:red">
+      <% if( status ) { %>
+        <%= status %><br>
+      <% } %>
+    </h3>
+
     <h1>Login</h1>
     <h3 style="color:red">
       <% if( login_message ) { %>

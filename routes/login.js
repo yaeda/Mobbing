@@ -49,7 +49,7 @@ function _register(req, res, next) {
       typeof pass === "undefined" ) {
      console.log( "input values are invalid." );
      console.log( req.body );
-     res.render('index', { login_message: '', register_message: 'fill up all information !' });
+     res.render('index', { status: '', login_message: '', register_message: 'fill up all information !' });
      return;
    }
   
@@ -58,18 +58,18 @@ function _register(req, res, next) {
     connection.query( SQLselectN, [name], function( err, results ) {
       if( results.length != 0 ) {
         console.log( "query result: " + results );
-        res.render('index', { login_message: '', register_message: 'Username is already used...' });
+        res.render('index', {  status: '', login_message: '', register_message: 'Username is already used...' });
         connection.release();
         return;
       } else {
         connection.query( SQLinsert, [mail, name, pass, ''], function( err, results ) {
           connection.release();
-          res.render('index', { login_message: '', register_message: 'register success!!' });
+          req.session.username = name;
+          res.render('index', {  status: '', login_message: '', register_message: 'register success!!' });
         } );
       }
     } );
   } );
-
 };
 
 function _login(req, res, next) {
@@ -90,16 +90,16 @@ function _login(req, res, next) {
     connection.query( SQLselectNP, [name, pass], function( err, results ) {
       if( results === null || results === undefined || results.length === 0 ) {
         console.log( 'login error!' );
-        res.render('index', { login_message: 'Login error... Username or Password is incorrect.', register_message: '' });
+        res.render('index', {  status: '', login_message: 'Login error... Username or Password is incorrect.', register_message: '' });
       }
       else {
+        req.session.username = name;
         console.log( 'login success!' );
-        res.render('index', { login_message: 'Login success!!', register_message: '' });
+        res.render('index', {  status: '', login_message: 'Login success!!', register_message: '' });
       }
       connection.release();
     } );
   } );
-
 };
 
 module.exports = {
