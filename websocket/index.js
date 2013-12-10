@@ -11,7 +11,6 @@ var initSocket4Game = function(socket) {
 
     socket.on('join', function(msg) {
         console.log('join');
-        console.log(msg);
         var worldId = msg.eventId;
         var userId = msg.userId;
         // socket
@@ -19,6 +18,8 @@ var initSocket4Game = function(socket) {
         // game
         world = GameManager.getWorld(worldId);
         player = world.add(socket.id, userId);
+        // notify
+        io.of('/game').in(worldId).emit('joined', {joined: player, all: world.players});
     });
 
     socket.on('start', function() {
@@ -39,6 +40,8 @@ var initSocket4Game = function(socket) {
         // game
         if (world !== null)
             world.remove(socket.id);
+        // notify
+        io.of('/game').in(world.id).emit('leaved', {leaved: player, all: world.players});
         player = null;
         world = null;
     });

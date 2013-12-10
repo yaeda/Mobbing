@@ -146,6 +146,12 @@ var Game = function(eventId, userId) {
     this._socket.on('connected', function(msg) {
         self._onConnect.call(self, msg);
     });
+    this._socket.on('joined', function(msg) {
+        self._onJoined.call(self, msg);
+    });
+    this._socket.on('leaved', function(msg) {
+        self._onLeaved.call(self, msg);
+    });
     this._socket.on('update', function(msg) {
         self._onUpdate.call(self, msg);
     });;
@@ -168,11 +174,15 @@ var Game = function(eventId, userId) {
     this._renderer = new Renderer();
 
     // event listener
-    this._listener = {
-        'start': [],
-        'end': []
-    };
-
+    this.EVENT_JOINED = 'joined';
+    this.EVENT_LEAVED = 'leaved';
+    this.EVENT_START = 'start';
+    this.EVENT_END = 'end';
+    this._listener = {};
+    this._listener[this.EVENT_JOINED] = [];
+    this._listener[this.EVENT_LEAVED] = [];
+    this._listener[this.EVENT_START] = [];
+    this._listener[this.EVENT_END] = [];
 }
 
 Game.prototype = {
@@ -213,12 +223,32 @@ Game.prototype = {
         this._socket.emit('join', {eventId: this._eventId, userId: this._userId});
     },
 
+    _onJoined: function(msg) {
+        var joinedUserId = msg.joined.userId
+        var allUserId = [];
+        for (var key in msg.all) {
+            allUserId.push(msg.all[key].userId);
+        }
+        this._trigger(this.EVENT_JOINED,
+                      {joined: joinedUserId, all: allUserId})
+    },
+
+    _onLeaved: function(msg) {
+        var leavedUserId = msg.leaved.userId
+        var allUserId = [];
+        for (var key in msg.all) {
+            allUserId.push(msg.all[key].userId);
+        }
+        this._trigger(this.EVENT_LEAVED,
+                      {leaved: leavedUserId, all: allUserId})
+    },
+
     _onStart: function(msg) {
-        this._trigger('start');
+        this._trigger(this.EVENT_START);
     },
 
     _onEnd: function(msg) {
-        this._trigger('end');
+        this._trigger(this.EVENT_END);
     },
 
     _onUpdate: function(msg) {
