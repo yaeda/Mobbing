@@ -3,16 +3,6 @@
  * Login and Register
  */
 
-var mysql    = require('mysql');
-var settings = require('./../settings.json');
-
-// create db connection as pooled connection
-var pool = mysql.createPool({
-  host     : settings.dbhost,
-  port     : settings.dbport,
-  user     : settings.dbuser,
-  password : settings.dbpassword
-});
 
 var SQLselectN  = "select * from webgame.User WHERE name = ?";
 var SQLselectNP = "select * from webgame.User WHERE name = ? AND password = ?";
@@ -64,7 +54,7 @@ function _register(req, res, next) {
    }
   
   // DB connection
-  pool.getConnection( function( err, connection ) {
+  req.dbconn.getConnection( function( err, connection ) {
     connection.query( SQLselectN, [name], function( err, results ) {
       if( results.length != 0 ) {
         console.log( "query result: " + results );
@@ -96,7 +86,7 @@ function _login(req, res, next) {
   }
 
   // DB connection
-  pool.getConnection( function( err, connection ) {
+  req.dbconn.getConnection( function( err, connection ) {
     connection.query( SQLselectNP, [name, pass], function( err, results ) {
       if( results === null || results === undefined || results.length === 0 ) {
         console.log( 'login error!' );
