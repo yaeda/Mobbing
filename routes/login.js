@@ -14,11 +14,12 @@ var pool = mysql.createPool({
   password : settings.dbpassword
 });
 
-var SQLselect = "select * from webgame.User WHERE name = ? AND password = ?";
-var SQLinsert = "insert into webgame.User (email, name, password, icon_url) VALUES(?, ?, ?, ?)";
+var SQLselectN  = "select * from webgame.User WHERE name = ?";
+var SQLselectNP = "select * from webgame.User WHERE name = ? AND password = ?";
+var SQLinsert   = "insert into webgame.User (email, name, password, icon_url) VALUES(?, ?, ?, ?)";
 
 function login(req, res, next) {
-  console.log(req.body);
+  //console.log(req.body);
 
   var submit;
   if( req.body.submit ) {
@@ -32,17 +33,17 @@ function login(req, res, next) {
     _register(req, res, next);
   }
   else {
-    console.log("ERROR!");
+    console.log("Submit value error!");
   }
   
 };
 
 function _register(req, res, next) {
-  console.log("Register!");
+  //console.log("Register!");
 
-  var mail;
-  var name;
-  var pass;
+  var mail = undefined;
+  var name = undefined;
+  var pass = undefined;
 
   if( req.body.mail ) {
     mail = req.body.mail;
@@ -53,22 +54,36 @@ function _register(req, res, next) {
   if( req.body.pass ) {
     pass = req.body.pass;
   }
+  if( typeof mail === "undefined" ||
+      typeof name === "undefined" ||
+      typeof pass === "undefined" ) {
+     console.log( "input values are invalid." );
+     console.log( req.body );
+     res.render('index', { login_message: '', register_message: 'fill up all information !' });
+     return;
+   }
   
   // DB connection
   pool.getConnection( function( err, connection ) {
-    // Use the connection
-    connection.query( SQLinsert, [mail, name, pass, ''], function( err, rows ) {
-      connection.release();
+    connection.query( SQLselectN, [name], function( err, results ) {
+      if( results.length != 0 ) {
+        console.log( "query result: " + results );
+        res.render('index', { login_message: '', register_message: 'Username is already used...' });
+        connection.release();
+        return;
+      } else {
+        connection.query( SQLinsert, [mail, name, pass, ''], function( err, results ) {
+          connection.release();
+          res.render('index', { login_message: '', register_message: 'register success!!' });
+        } );
+      }
     } );
   } );
-
-  
-  res.render('index', { login_message: '', register_message: 'mail:' + mail + ', name:' + name + ', pass:' + pass });
 
 };
 
 function _login(req, res, next) {
-  console.log("Login!");
+  //console.log("Login!");
 
   var name;
   var pass;
@@ -82,20 +97,18 @@ function _login(req, res, next) {
 
   // DB connection
   pool.getConnection( function( err, connection ) {
-    // Use the connection
-    connection.query( SQLselect, [name, pass], function( err, rows ) {
-      if( rows === null || rows === undefined || rows.length === 0 ) {
+    connection.query( SQLselectNP, [name, pass], function( err, results ) {
+      if( results === null || results === undefined || results.length === 0 ) {
         console.log( 'login error!' );
+        res.render('index', { login_message: 'Login error... Username or Password is incorrect.', register_message: '' });
       }
       else {
         console.log( 'login success!' );
+        res.render('index', { login_message: 'Login success!!', register_message: '' });
       }
       connection.release();
     } );
   } );
-
-
-  res.render('index', { login_message: 'name:' + name + ', pass:' + pass, register_message: '' });
 
 };
 
