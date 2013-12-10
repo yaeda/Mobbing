@@ -16,12 +16,22 @@ $(function() {
     game.on('start', function() {
         btnStart.text('Playing');
         btnStart.addClass('disabled');
+        notify('START');
     });
 
     // 4. end eventa
     game.on('end', function() {
         btnStart.text('Ended');
+        notify('END');
         // get score or some other actions
         console.log(game.getMyScore());
     });
+
+    var notify = function(msg) {
+        var $notify = $('.notify');
+        $notify.text(msg).removeClass('fadeinout');
+        setTimeout(function() {
+            $notify.addClass('fadeinout');
+        }, 0);
+    }
 });
