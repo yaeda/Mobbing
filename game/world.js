@@ -2,7 +2,10 @@ var Player = require('./player');
 
 var World = function(id) {
     this.id = id;
+    this.width = 500;
+    this.height = 500;
     this.players = {};
+
     this.FPS = 15;
     this.INVINCIBLE_FRAME = 2 * this.FPS; // 5 sec
     this.GAME_TIME = 1 * 60 * this.FPS; // 1 min
@@ -11,8 +14,8 @@ var World = function(id) {
 }
 
 World.prototype = {
-    add: function(id) {
-        var player = new Player(id);
+    add: function(id, userId) {
+        var player = new Player(id, userId, this.width, this.height);
         this.players[id] = player;
         if (Object.keys(this.players).length === 1)
             player.role = 1;
@@ -28,6 +31,7 @@ World.prototype = {
         var role = player.role;
         delete this.players[id];
         var numPlayers = Object.keys(this.players).length;
+        console.log("#players = " + numPlayers);
         if (numPlayers === 0) {
             this.stop();
         } else if (role === 1) {
