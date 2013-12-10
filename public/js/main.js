@@ -19,7 +19,7 @@ $(function() {
         notify('START');
     });
 
-    // 4. end eventa
+    // 4. end event
     game.on('end', function() {
         btnStart.text('Ended');
         notify('END');
@@ -27,8 +27,35 @@ $(function() {
         console.log(game.getMyScore());
     });
 
-    var notify = function(msg) {
+    // 5. join event (option)
+    game.on('joined', function(msg) {
+        notify(msg.joined + ' is joined', true);
+        updateParticipant(msg.all);
+    });
+
+    // 6. leave event (option)
+    game.on('leaved', function(msg) {
+        notify(msg.leaved + ' is leaved', true);
+        updateParticipant(msg.all);
+    });
+
+
+    var updateParticipant = function(players) {
+        var $players = $('#players').empty();
+        for (var i = 0, l = players.length; i < l; i++) {
+            var $li = $('<li>').text(players[i]);
+            if (players[i] == USER_ID)
+                $players.prepend($li.addClass('me'));
+            else
+                $players.append($li);
+        }
+    }
+
+    var notify = function(msg, isSmall) {
         var $notify = $('.notify');
+        if (isSmall) $notify.addClass('small');
+        else $notify.removeClass('small');
+
         $notify.text(msg).removeClass('fadeinout');
         setTimeout(function() {
             $notify.addClass('fadeinout');
