@@ -1,16 +1,16 @@
 /*
-* Mapper for Event
+* Mapper for Game
 */
 
-var Class   = require('./Event');
+var Class   = require('./Game');
 var Util    = require('../lib/queryutil');
 var ObjUtil = require('../lib/objectutil');
 var SQLUtil = require('../lib/mysqlutil');
 
-var EventMapper = {
+var GameMapper = {
   count: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var sql   = 'SELECT COUNT(*) AS num FROM Event';
+    var sql   = 'SELECT COUNT(*) AS num FROM Game';
     var whsql = '';
     var que;
     var args = {};
@@ -76,7 +76,7 @@ var EventMapper = {
   },
   select: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var sql   = 'SELECT id, name, state, starttime, Game_id FROM Event';
+    var sql   = 'SELECT id, name FROM Game';
     var whsql = '';
     var que;
     var limit;
@@ -97,7 +97,7 @@ var EventMapper = {
     if (whsql) {
       sql += ' WHERE ' + whsql;
     }
-    console.log(sql);
+    
     pool.getConnection(function(err, conn) {
       if (err) {cb(err);return;}
       if (!conn) {
@@ -113,7 +113,6 @@ var EventMapper = {
             
       try {
         var _cbResult = function(err, rows, fields, args) {
-          console.log(err);
           if (err) {
             sqlUtil.rollback(err, cb);
             return;
@@ -125,11 +124,8 @@ var EventMapper = {
               entities = new Array(rows.length);
               for (var i = 0; i < rows.length; i++) {
                 var ent = Class.create();
-                ent.id        = rows[i].id;
-                ent.name      = rows[i].name;
-                ent.state     = rows[i].state;
-                ent.starttime = rows[i].starttime;
-                ent.Game_id   = rows[i].Game_id;
+                ent.id   = rows[i].id;
+                ent.name = rows[i].name;
                 entities[i] = ent;
               }
             }
@@ -162,9 +158,9 @@ var EventMapper = {
     if (!records || records.length === 0) {
       if (cb) {return cb(new Error('records is null'));}
     }
-    var set   = 'id, name, state, starttime, Game_id';
-    var val   = '?, ?, ?, ?, ?';
-    var sql   = 'INSERT INTO Event(' + set + ') VALUES (' + val + ')';
+    var set   = 'id, name';
+    var val   = '?, ?';
+    var sql   = 'INSERT INTO Game(' + set + ') VALUES (' + val + ')';
     var queNum = 0;
     var recNum = records.length;
         
@@ -235,9 +231,6 @@ var EventMapper = {
             var ph = [];
             ph.push(record.id);
             ph.push(record.name);
-            ph.push(record.state);
-            ph.push(record.starttime);
-            ph.push(record.Game_id);
             args.ph = ph;
             sqlUtil.query(conn, query, null, _cbResult);
           }
@@ -257,8 +250,8 @@ var EventMapper = {
   },
   update: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var set = ' :id_r :name_r :state_r :starttime_r :Game_id_r';
-    var sql = 'UPDATE Event SET ' + set;
+    var set = ' :id_r :name_r';
+    var sql = 'UPDATE Game SET ' + set;
     var queNum = 0;
     var recNum = records.length;
     var que;
@@ -334,30 +327,6 @@ var EventMapper = {
               useNum ++;
             }
             query = query.replace(/:name_r/g, repVal);
-            repVal = '';
-            if (record.state !== undefined) {
-              if (useNum > 0) {repVal += ', ';}
-              repVal += 'state = ?';
-              ph.push(record.state);
-              useNum ++;
-            }
-            query = query.replace(/:state_r/g, repVal);
-            repVal = '';
-            if (record.starttime !== undefined) {
-              if (useNum > 0) {repVal += ', ';}
-              repVal += 'starttime = ?';
-              ph.push(record.starttime);
-              useNum ++;
-            }
-            query = query.replace(/:starttime_r/g, repVal);
-            repVal = '';
-            if (record.Game_id !== undefined) {
-              if (useNum > 0) {repVal += ', ';}
-              repVal += 'Game_id = ?';
-              ph.push(record.Game_id);
-              useNum ++;
-            }
-            query = query.replace(/:Game_id_r/g, repVal);
             args.ph = ph;
                             
             whsql = Util.createQuery(Class, record, que);
@@ -384,7 +353,7 @@ var EventMapper = {
   },
   delete: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var sql = 'DELETE FROM Event';
+    var sql = 'DELETE FROM Game';
     var whsql = '';
     var que;
     if (options) {
@@ -448,5 +417,5 @@ var EventMapper = {
   }
 };
 
-module.exports = EventMapper;
+module.exports = GameMapper;
 

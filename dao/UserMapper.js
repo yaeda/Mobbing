@@ -1,16 +1,16 @@
 /*
-* Mapper for Event
+* Mapper for User
 */
 
-var Class   = require('./Event');
+var Class   = require('./User');
 var Util    = require('../lib/queryutil');
 var ObjUtil = require('../lib/objectutil');
 var SQLUtil = require('../lib/mysqlutil');
 
-var EventMapper = {
+var UserMapper = {
   count: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var sql   = 'SELECT COUNT(*) AS num FROM Event';
+    var sql   = 'SELECT COUNT(*) AS num FROM User';
     var whsql = '';
     var que;
     var args = {};
@@ -76,7 +76,7 @@ var EventMapper = {
   },
   select: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var sql   = 'SELECT id, name, state, starttime, Game_id FROM Event';
+    var sql   = 'SELECT id, name, email, password, icon_url FROM User';
     var whsql = '';
     var que;
     var limit;
@@ -97,7 +97,7 @@ var EventMapper = {
     if (whsql) {
       sql += ' WHERE ' + whsql;
     }
-    console.log(sql);
+    
     pool.getConnection(function(err, conn) {
       if (err) {cb(err);return;}
       if (!conn) {
@@ -113,7 +113,6 @@ var EventMapper = {
             
       try {
         var _cbResult = function(err, rows, fields, args) {
-          console.log(err);
           if (err) {
             sqlUtil.rollback(err, cb);
             return;
@@ -125,11 +124,11 @@ var EventMapper = {
               entities = new Array(rows.length);
               for (var i = 0; i < rows.length; i++) {
                 var ent = Class.create();
-                ent.id        = rows[i].id;
-                ent.name      = rows[i].name;
-                ent.state     = rows[i].state;
-                ent.starttime = rows[i].starttime;
-                ent.Game_id   = rows[i].Game_id;
+                ent.id       = rows[i].id;
+                ent.name     = rows[i].name;
+                ent.email    = rows[i].email;
+                ent.password = rows[i].password;
+                ent.icon_url = rows[i].icon_url;
                 entities[i] = ent;
               }
             }
@@ -162,9 +161,9 @@ var EventMapper = {
     if (!records || records.length === 0) {
       if (cb) {return cb(new Error('records is null'));}
     }
-    var set   = 'id, name, state, starttime, Game_id';
+    var set   = 'id, name, email, password, icon_url';
     var val   = '?, ?, ?, ?, ?';
-    var sql   = 'INSERT INTO Event(' + set + ') VALUES (' + val + ')';
+    var sql   = 'INSERT INTO User(' + set + ') VALUES (' + val + ')';
     var queNum = 0;
     var recNum = records.length;
         
@@ -235,9 +234,9 @@ var EventMapper = {
             var ph = [];
             ph.push(record.id);
             ph.push(record.name);
-            ph.push(record.state);
-            ph.push(record.starttime);
-            ph.push(record.Game_id);
+            ph.push(record.email);
+            ph.push(record.password);
+            ph.push(record.icon_url);
             args.ph = ph;
             sqlUtil.query(conn, query, null, _cbResult);
           }
@@ -257,8 +256,8 @@ var EventMapper = {
   },
   update: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var set = ' :id_r :name_r :state_r :starttime_r :Game_id_r';
-    var sql = 'UPDATE Event SET ' + set;
+    var set = ' :id_r :name_r :email_r :password_r :icon_url_r';
+    var sql = 'UPDATE User SET ' + set;
     var queNum = 0;
     var recNum = records.length;
     var que;
@@ -335,29 +334,29 @@ var EventMapper = {
             }
             query = query.replace(/:name_r/g, repVal);
             repVal = '';
-            if (record.state !== undefined) {
+            if (record.email !== undefined) {
               if (useNum > 0) {repVal += ', ';}
-              repVal += 'state = ?';
-              ph.push(record.state);
+              repVal += 'email = ?';
+              ph.push(record.email);
               useNum ++;
             }
-            query = query.replace(/:state_r/g, repVal);
+            query = query.replace(/:email_r/g, repVal);
             repVal = '';
-            if (record.starttime !== undefined) {
+            if (record.password !== undefined) {
               if (useNum > 0) {repVal += ', ';}
-              repVal += 'starttime = ?';
-              ph.push(record.starttime);
+              repVal += 'password = ?';
+              ph.push(record.password);
               useNum ++;
             }
-            query = query.replace(/:starttime_r/g, repVal);
+            query = query.replace(/:password_r/g, repVal);
             repVal = '';
-            if (record.Game_id !== undefined) {
+            if (record.icon_url !== undefined) {
               if (useNum > 0) {repVal += ', ';}
-              repVal += 'Game_id = ?';
-              ph.push(record.Game_id);
+              repVal += 'icon_url = ?';
+              ph.push(record.icon_url);
               useNum ++;
             }
-            query = query.replace(/:Game_id_r/g, repVal);
+            query = query.replace(/:icon_url_r/g, repVal);
             args.ph = ph;
                             
             whsql = Util.createQuery(Class, record, que);
@@ -384,7 +383,7 @@ var EventMapper = {
   },
   delete: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var sql = 'DELETE FROM Event';
+    var sql = 'DELETE FROM User';
     var whsql = '';
     var que;
     if (options) {
@@ -448,5 +447,5 @@ var EventMapper = {
   }
 };
 
-module.exports = EventMapper;
+module.exports = UserMapper;
 

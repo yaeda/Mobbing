@@ -19,7 +19,8 @@ var pool = mysql.createPool({
   host     : settings.dbhost,
   port     : settings.dbport,
   user     : settings.dbuser,
-  password : settings.dbpassword
+  password : settings.dbpassword,
+  database : settings.dbdatabase
 });
 
 // all environments
@@ -37,7 +38,6 @@ app.use(express.session(
 ));
 app.use(express.methodOverride());
 app.use(function(req, res, next){
-  console.log('this function is called before url api call');
   // session data is stored in the followings
   var sessiondata = req.session;
   // sample to store data in the session
@@ -83,8 +83,8 @@ app.resource('login', require('./routes/login'), apikeys);
 // event
 app.resource('event', require('./routes/event'), apikeys);
 
-// api to get event user list
-app.resource('eventuser', require('./routes/eventuser'), apikeys);
+// api to get score table
+app.resource('score', require('./routes/score'), apikeys);
 
 
 
