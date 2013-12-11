@@ -4,5 +4,15 @@
  */
 
 exports.index = function(req, res){
-  res.render('index', { title: 'Express' });
+  if( req.session.username ) {
+    res.render('index', { username: req.session.username,
+                          status: 'logined', 
+                          login_message: '', 
+                          register_message: '' });
+  } else {
+    res.render('index', { username: '',
+                          status: 'not logined', 
+                          login_message: '', 
+                          register_message: '' });
+  }
 };
