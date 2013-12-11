@@ -50,7 +50,7 @@ a {
   color: #00B7FF;
 }
 
-/*status ‚«o‚µ*/
+/*status å¹ãå‡ºã—*/
 .notready_status, .ready_status, .go_status{
 	display: block;
 	position: relative;
@@ -80,12 +80,12 @@ a {
 	color:#FFFFFF;
 }
 
-/*Profile ‚«o‚µ*/
+/*Profile å¹ãå‡ºã—*/
 .profile_pop_box {
 	display: none;
 	position: absolute;
-	top: 1px;/*šÈ—ª•s‰ÂAƒuƒ‰ƒEƒU‰Šú’lƒoƒ‰ƒoƒ‰*/
-	left:1px;/*šFirefox‚Åhover‚ª–³Œø‚É‚È‚è‚Ü‚·*/
+	top: 1px;/*â˜…çœç•¥ä¸å¯ã€ãƒ–ãƒ©ã‚¦ã‚¶åˆæœŸå€¤ãƒãƒ©ãƒãƒ©*/
+	left:1px;/*â˜…Firefoxã§hoverãŒç„¡åŠ¹ã«ãªã‚Šã¾ã™*/
 	z-index=100;
 }
 
@@ -135,7 +135,7 @@ a {
    padding:0px 0px;
    border:0px;
 }
-/*Chat ‚«o‚µ*//***server notify ***/
+/*Chat å¹ãå‡ºã—*//***server notify ***/
 .server_notify {
 	position: relative;
 	background: #bdc3c7;
@@ -152,7 +152,7 @@ a {
 
 	
 }
-/*Chat ‚«o‚µ*//**left**/
+/*Chat å¹ãå‡ºã—*//**left**/
 .arrow_box_left {
 	position: relative;
 	background: #0AABBA;
@@ -196,7 +196,7 @@ a {
 	margin-top: -8px;
 }
 
-/*Chat ‚«o‚µ*//**right**/
+/*Chat å¹ãå‡ºã—*//**right**/
 .arrow_box_right {
 	position: relative;
 	background: #fe0557;
