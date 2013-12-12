@@ -3,6 +3,7 @@
  * Login and Register
  */
 
+var crypto = require('crypto');
 var User = require('../dao/User');
 
 var SQLselectN  = "select * from webgame.User WHERE name = ?";
@@ -49,7 +50,6 @@ function _register(req, res, next) {
       typeof name === "undefined" ||
       typeof pass === "undefined" ) {
      console.log( "input values are invalid." );
-     console.log( req.body );
      res.render('index', { username: '',
                            status: 'not logined', 
                            login_message: '', 
@@ -61,7 +61,6 @@ function _register(req, res, next) {
   req.dbconn.getConnection( function( err, connection ) {
     connection.query( SQLselectN, [name], function( err, results ) {
       if( results.length != 0 ) {
-        console.log( "query result: " + results );
         res.render('index', {  username: '',
                                status: 'not logined', 
                                login_message: '', 
@@ -69,7 +68,8 @@ function _register(req, res, next) {
         connection.release();
         return;
       } else {
-        connection.query( SQLinsert, [mail, name, pass, ''], function( err, results ) {
+        var pass_hash = _md5_hex( pass );
+        connection.query( SQLinsert, [mail, name, pass_hash, ''], function( err, results ) {
           connection.query( SQLselectN, [name], function( err, results ) {
             _set_userInfo_to_session(req.session, results[0]);
             connection.release();
@@ -99,7 +99,8 @@ function _login(req, res, next) {
 
   // DB connection
   req.dbconn.getConnection( function( err, connection ) {
-    connection.query( SQLselectNP, [name, pass], function( err, results ) {
+    var pass_hash = _md5_hex( pass );
+    connection.query( SQLselectNP, [name, pass_hash], function( err, results ) {
       if( results === null || results === undefined || results.length === 0 ) {
         console.log( 'login error!' );
         res.render('index', {  username: '',
@@ -145,6 +146,11 @@ function _set_userInfo_to_session(session, user_data) {
     user.name = user_data.name;
     session.user = user;
   }
+};
+
+function _md5_hex(src) {
+  var md5 = crypto.createHash('md5');
+  return md5.update(src).digest('hex');
 };
 
 module.exports = {
