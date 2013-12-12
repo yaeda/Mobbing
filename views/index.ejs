@@ -10,12 +10,12 @@
     <h3 style="color:red">
       <% if( status ) { %>
         <%= status %>: 
-        <% if( username.length != 0 ) { %>
+        <% if( username ) { %>
           username = <%= username %><br>
         <% } %>
       <% } %>
     </h3>
-    <% if( username.length != 0 ) { %>
+    <% if( username ) { %>
       <form method="GET" action="/login">
         <input type="submit" name="submit" value="Logout"><br>
       </form>

@@ -3,6 +3,7 @@
  * Login and Register
  */
 
+var User = require('../dao/User');
 
 var SQLselectN  = "select * from webgame.User WHERE name = ?";
 var SQLselectNP = "select * from webgame.User WHERE name = ? AND password = ?";
@@ -69,12 +70,14 @@ function _register(req, res, next) {
         return;
       } else {
         connection.query( SQLinsert, [mail, name, pass, ''], function( err, results ) {
-          connection.release();
-          req.session.username = name;
-          res.render('index', {  username: req.session.username,
-                                 status: 'logined' + req.session.username, 
-                                 login_message: '', 
-                                 register_message: 'register success!!' });
+          connection.query( SQLselectN, [name], function( err, results ) {
+            _set_userInfo_to_session(req.session, results[0]);
+            connection.release();
+            res.render('index', {  username: req.session.user.name,
+                                   status: 'logined', 
+                                   login_message: '', 
+                                   register_message: 'register success!!' });
+          } );
         } );
       }
     } );
@@ -105,9 +108,9 @@ function _login(req, res, next) {
                                register_message: '' });
       }
       else {
-        req.session.username = name;
+        _set_userInfo_to_session(req.session, results[0]);
         console.log( 'login success!' );
-        res.render('index', {  username: req.session.username,
+        res.render('index', {  username: req.session.user.name,
                                status: 'logined', 
                                login_message: 'Login success!!', 
                                register_message: '' });
@@ -133,7 +136,15 @@ function _logout(req, res, next) {
                            login_message: '', 
                            register_message: '' });
   }
+};
 
+function _set_userInfo_to_session(session, user_data) {
+  if( session || user_data ) {
+    var user = User.create();
+    user.id   = user_data.id;
+    user.name = user_data.name;
+    session.user = user;
+  }
 };
 
 module.exports = {
