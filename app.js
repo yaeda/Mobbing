@@ -3,10 +3,11 @@
  * Module dependencies.
  */
 
-/*
+
 var express = require('express')
   , resource   = require('express-resource')
   , routes = require('./routes')
+  , event_routes = require('./routes/event')
   , mysql      = require('mysql')
   , http = require('http')
   , path = require('path')
@@ -23,28 +24,38 @@ var pool = mysql.createPool({
   password : settings.dbpassword
 });
 
+
 // all environments
-app.set('port', process.env.PORT || 3001);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.cookieParser()); // needed to use session
-app.use(express.session(
-  {secret : 'secret',
-   cookie : {maxAge: 1000 * 60 * 60 * 24 * 7} // 1week
-  }
-));
-app.use(express.methodOverride());
-app.use(function(req, res, next){
-  console.log('this function is called before url api call');
-  // session data is stored in the followings
-  var sessiondata = req.session;
-  // sample to store data in the session
-  if (!req.session.lasttime) {
-    req.session.lasttime = parseInt((new Date)/1000);
-  }
+app.configure(function() {
+  app.set('port', process.env.PORT || 3000);
+
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'ejs');
+
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(express.json());
+  app.use(express.urlencoded());
+  app.use(express.methodOverride());
+
+  app.use(express.cookieParser()); // needed to use session
+  app.use(express.session(
+    {secret : 'secret',
+     cookie : {maxAge: 1000 * 60 * 60 * 24 * 7} // 1week
+    }
+  ));
+
+  app.use(express.methodOverride());
+
+  app.use(function(req, res, next){
+    console.log('this function is called before url api call');
+    // session data is stored in the followings
+    var sessiondata = req.session;
+    // sample to store data in the session
+    if (!req.session.lasttime) {
+      req.session.lasttime = parseInt((new Date)/1000);
+    }
 
   // sample : check session data
   console.log(req.session.lasttime);
@@ -52,31 +63,38 @@ app.use(function(req, res, next){
   // share db connection
   req.dbconn = pool;
   next();
-});
-app.use(app.router);
+  });
+  
+  app.use(app.router);
 
-// error handling
-app.use(function(err, req, res, next){
-  console.log('error handling');
-  if (!err) {
-    console.log('no error');
-    return;
-  }
-  console.log(err);
-  console.log(err.stack);
-  res.send(500, 'Server error!');
+  // error handling
+  app.use(function(err, req, res, next){
+    console.log('error handling');
+    if (!err) {
+      console.log('no error');
+      return;
+    }
+    console.log(err);
+    console.log(err.stack);
+    res.send(500, 'Server error!');
+  });
+
+  //use static public resources
+  app.use(express.static(path.join(__dirname, 'public')));
+
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
-
 var apikeys = {id: 'id'};
+
+app.get('/', routes.index);
 
 // api for this service
 // login
@@ -84,51 +102,18 @@ app.post('/login', require('./routes/login').login);
 app.get('/login', require('./routes/login').logout);
 
 // event
-app.resource('event', require('./routes/event'), apikeys);
+//app.resource('event', require('./routes/event'), apikeys);
+app.get('/events/:event_id', event_routes.event);
 
 // api to get event user list
 app.resource('eventuser', require('./routes/eventuser'), apikeys);
 
 
-
-
-http.createServer(app).listen(app.get('port'), function(){
+//Create HTTP Server
+var server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
-*/
 
-///////////////////////////////////Write by wang ////////////////////////////////
-var express = require('express')
-  , routes = require('./routes/event')
-  , http = require('http')
-  , path = require('path');
-
-var app = express();
-
-/////all environments
-app.configure(function() {
-  app.set('port', process.env.PORT || 3000);
-  
-  app.set('views', path.join(__dirname, 'views'));
-  app.set('view engine', 'ejs');
-  app.use(express.favicon());
-  app.use(express.logger('dev'));
-  app.use(express.json());
-  app.use(express.urlencoded());
-  app.use(express.methodOverride());
-  app.use(app.router);
-  
-  app.use(express.static(path.join(__dirname, 'public')));
-});
-
-
-app.get('/events/:event_id', routes.event);
-
-
-//Create HTTP Server
-var server = http.createServer(app).listen(app.get('port'), function() {
-  console.log("Express server listening on port " + app.get('port'));
-});
 
 
 
@@ -170,7 +155,7 @@ function playerById(id) {
 function playersInEvent(event_id)
 {
   var playerslist = [];
-  var event = routes.eventById(event_id);
+  var event = event_routes.eventById(event_id);
   
   var i;
   for (i = 0; i < event.playerIds.length; i++) {
@@ -196,7 +181,7 @@ function onClientDisconnect() {
 	players.splice(players.indexOf(removePlayer), 1);
     
     //leave the event
-    var event = routes.leave(removePlayer.id);
+    var event = event_routes.leave(removePlayer.id);
     if(event) this.leave( this.player_id );
 	else
 		return;
@@ -229,7 +214,7 @@ socketio.of('/mobbing').on('connection', function(client) {
     else register(player_id, player_id);
     
     //event へjoin
-    var event = routes.join( param.event_id , player_id );
+    var event = event_routes.join( param.event_id , player_id );
     client.join( event.id );
     client.event_id = event.id; //save event id to socket;
     client.player_id = player_id;//save player id to socket;
@@ -273,8 +258,7 @@ socketio.of('/mobbing').on('connection', function(client) {
     }
   });
   
-
-
-
 });
+
+
 

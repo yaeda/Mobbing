@@ -1,4 +1,4 @@
-/*
+/********************************************************
 var async     = require('async')
   , Entity    = require('../dao/Event')
   , Mapper    = require('../dao/EventMapper')
@@ -54,7 +54,9 @@ module.exports = {
   }
 };
 
-*/
+*************************************************************/
+
+
 ////////////////////////////////////Following is Added by wang///////////////////////////////////////////
 
 function eventinfo(event_id){this.id = event_id;this.playerIds = [];}
