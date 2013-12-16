@@ -76,7 +76,7 @@ var ScoreMapper = {
   },
   select: function(pool, records, options, cb) {
     records = ObjUtil.toArray(records);
-    var sql;
+    var sql   = 'SELECT id, score, timestamp, User_id, Event_id FROM Score';
     var whsql = '';
     var que;
     var limit;
@@ -93,9 +93,6 @@ var ScoreMapper = {
         args.offset = offset;
       }
     }
-    sql = 'SELECT Score.id, name, icon_url, score, timestamp, User_id, Event_id FROM Score'
-    + ' INNER JOIN User ON Score.User_id = User.id';
-
     whsql = Util.createQuery(Class, records, que, true, true);
     if (whsql) {
       sql += ' WHERE ' + whsql;
@@ -128,10 +125,6 @@ var ScoreMapper = {
               for (var i = 0; i < rows.length; i++) {
                 var ent = Class.create();
                 ent.id        = rows[i].id;
-                // joined with user 
-                ent.name      = rows[i].name;
-                ent.icon_url  = rows[i].icon_url;
-                // joined end
                 ent.score     = rows[i].score;
                 ent.timestamp = rows[i].timestamp;
                 ent.User_id   = rows[i].User_id;
@@ -245,7 +238,7 @@ var ScoreMapper = {
             ph.push(record.User_id);
             ph.push(record.Event_id);
             args.ph = ph;
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         
@@ -373,7 +366,7 @@ var ScoreMapper = {
             } else {
               query += ' WHERE ' + whsql;
             }
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         

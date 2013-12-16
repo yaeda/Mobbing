@@ -234,7 +234,7 @@ var UserGameScoreMapper = {
             ph.push(record.Game_id);
             ph.push(record.score);
             args.ph = ph;
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         
@@ -346,7 +346,7 @@ var UserGameScoreMapper = {
             } else {
               query += ' WHERE ' + whsql;
             }
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         

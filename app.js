@@ -81,7 +81,7 @@ var apikeys = {id: 'id'};
 // login
 app.resource('login', require('./routes/login'), apikeys);
 // event
-app.resource('event', require('./routes/event'), apikeys);
+app.resource('events', require('./routes/events'), apikeys);
 
 // api to get score table
 app.resource('score', require('./routes/score'), apikeys);

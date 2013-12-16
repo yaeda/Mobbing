@@ -232,7 +232,7 @@ var GameMapper = {
             ph.push(record.id);
             ph.push(record.name);
             args.ph = ph;
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         
@@ -336,7 +336,7 @@ var GameMapper = {
             } else {
               query += ' WHERE ' + whsql;
             }
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         

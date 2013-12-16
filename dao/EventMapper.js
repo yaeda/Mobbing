@@ -97,7 +97,7 @@ var EventMapper = {
     if (whsql) {
       sql += ' WHERE ' + whsql;
     }
-    console.log(sql);
+    
     pool.getConnection(function(err, conn) {
       if (err) {cb(err);return;}
       if (!conn) {
@@ -113,7 +113,6 @@ var EventMapper = {
             
       try {
         var _cbResult = function(err, rows, fields, args) {
-          console.log(err);
           if (err) {
             sqlUtil.rollback(err, cb);
             return;
@@ -239,7 +238,7 @@ var EventMapper = {
             ph.push(record.starttime);
             ph.push(record.Game_id);
             args.ph = ph;
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         
@@ -367,7 +366,7 @@ var EventMapper = {
             } else {
               query += ' WHERE ' + whsql;
             }
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         

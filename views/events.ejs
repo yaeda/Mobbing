@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Event list</title>
+    <link rel='stylesheet' href='/css/styles.css' />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <div class="bs-body">
+      <% if (events && events.length > 0) { %>
+      <% for (var i = 0; i < events.length; i++) { %>
+      <% var event = events[i]; %>
+      <% if (!event) {continue;} %>
+      <% var users = event.users; %>
+      <div class="list-event bs-list">
+        <div class="event">
+          <%= event.name %>
+        </div>
+        <% if (users && users.length > 0) { %>
+        <div class="user-box">
+        <%= users.length %>人のユーザーが参加中
+        <% for (var j = 0; j < users.length; j++) {%>
+          <% if (j > 0) { %>, <% } %>
+          <%= users[j].name %>
+        <% } %>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+      <% } %>
+  
+      <a href="/events/new" class="btn btn-primary btn-small " >Create new Event!</a>
+
+    </div>
+
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>
+

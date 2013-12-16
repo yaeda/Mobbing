@@ -238,7 +238,7 @@ var UserMapper = {
             ph.push(record.password);
             ph.push(record.icon_url);
             args.ph = ph;
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         
@@ -366,7 +366,7 @@ var UserMapper = {
             } else {
               query += ' WHERE ' + whsql;
             }
-            sqlUtil.query(conn, query, null, _cbResult);
+            sqlUtil.query(conn, query, args, _cbResult);
           }
         };
         
