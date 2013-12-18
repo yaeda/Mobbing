@@ -1,7 +1,7 @@
 /********************************************************
 var async     = require('async')
-  , Entity    = require('../dao/Score')
-  , Mapper    = require('../dao/ScoreMapper')
+  , Entity    = require('../dao/Event')
+  , Mapper    = require('../dao/EventMapper')
   , ErrorCode = require('../lib/errorcode')
   , Request   = require('../lib/requestquery');
 
@@ -36,6 +36,7 @@ function execute(req, res, next, method, view) {
     }
     res.jsonp({result: 'SUCCESS', data: records});
   });
+
 }
 
 module.exports = {
