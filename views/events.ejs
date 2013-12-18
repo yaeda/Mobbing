@@ -22,18 +22,25 @@
       <% if (!event) {continue;} %>
       <% var users = event.users; %>
       <div class="list-event bs-list">
-        <div class="event">
-          <%= event.name %>
+        <div class="row">
+          <div class="col-md-10">
+            <div class="event">
+              <%= event.name %>
+            </div>
+            <% if (users && users.length > 0) { %>
+            <div class="user-box">
+            <%= users.length %>人のユーザーが参加中
+            <% for (var j = 0; j < users.length; j++) {%>
+              <% if (j > 0) { %>, <% } %>
+              <%= users[j].name %>
+            <% } %>
+            </div>
+            <% } %>
+          </div>
+          <div class="col-md-2">
+            <a href="/events/<%= event.id %>" class="btn btn-primary btn-small" >Join!</a>
+          </div>
         </div>
-        <% if (users && users.length > 0) { %>
-        <div class="user-box">
-        <%= users.length %>人のユーザーが参加中
-        <% for (var j = 0; j < users.length; j++) {%>
-          <% if (j > 0) { %>, <% } %>
-          <%= users[j].name %>
-        <% } %>
-        </div>
-        <% } %>
       </div>
       <% } %>
       <% } %>
