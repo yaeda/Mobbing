@@ -73,10 +73,7 @@ function _register(req, res, next) {
           connection.query( SQLselectN, [name], function( err, results ) {
             _set_userInfo_to_session(req.session, results[0]);
             connection.release();
-            res.render('index', {  username: req.session.user.name,
-                                   status: 'logined', 
-                                   login_message: '', 
-                                   register_message: 'register success!!' });
+            res.redirect('/events');
           } );
         } );
       }
@@ -111,10 +108,13 @@ function _login(req, res, next) {
       else {
         _set_userInfo_to_session(req.session, results[0]);
         console.log( 'login success!' );
+        res.redirect('/events');
+/*
         res.render('index', {  username: req.session.user.name,
                                status: 'logined', 
                                login_message: 'Login success!!', 
                                register_message: '' });
+                               */
       }
       connection.release();
     } );
