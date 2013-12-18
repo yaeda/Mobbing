@@ -65,22 +65,31 @@ Renderer.prototype = {
         this._ctx.clearRect(0, 0, this.width, this.height);
         this._ctx.save();
         var me = world.players[playerId];
-        for (var id in world.players) {
-            var p = world.players[id];
-            if (p.id !== me.id) {
-                if (this._canSee(me, p)) {
-                    this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(85, 85, 85, 0.3)');
-                    this._drawCircle(p.x, p.y, '#555555');
-                    if (p.role == 1) this._drawCross(p.x, p.y, p.r);
-                } else if (DEBUG_MODE) {
-                    this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(176, 176, 176, 0.3)');
-                    this._drawCircle(p.x, p.y, '#aaaaaa');
+        if (me === undefined) {
+            for (var id in world.players) {
+                var p = world.players[id];
+                this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(85, 85, 85, 0.3)');
+                this._drawCircle(p.x, p.y, '#555555');
+                if (p.role == 1) this._drawCross(p.x, p.y, p.r);
+            }
+        } else {
+            for (var id in world.players) {
+                var p = world.players[id];
+                if (p.id !== me.id) {
+                    if (this._canSee(me, p)) {
+                        this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(85, 85, 85, 0.3)');
+                        this._drawCircle(p.x, p.y, '#555555');
+                        if (p.role == 1) this._drawCross(p.x, p.y, p.r);
+                    } else if (DEBUG_MODE) {
+                        this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(176, 176, 176, 0.3)');
+                        this._drawCircle(p.x, p.y, '#aaaaaa');
+                        if (p.role == 1) this._drawCross(p.x, p.y, p.r);
+                    }
+                } else {
+                    this._drawCircle(p.x, p.y, '#ea157a');
+                    this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(234, 21, 122, 0.3)');
                     if (p.role == 1) this._drawCross(p.x, p.y, p.r);
                 }
-            } else {
-                this._drawCircle(p.x, p.y, '#ea157a');
-                this._drawFOV(p.x, p.y, p.r, p.fovAngle, p.fovRadius, 'rgba(234, 21, 122, 0.3)');
-                if (p.role == 1) this._drawCross(p.x, p.y, p.r);
             }
         }
         this._ctx.restore();
@@ -178,11 +187,13 @@ var Game = function(eventId, userId) {
     this.EVENT_LEAVED = 'leaved';
     this.EVENT_START = 'start';
     this.EVENT_END = 'end';
+    this.EVENT_UPDATE = 'update';
     this._listener = {};
     this._listener[this.EVENT_JOINED] = [];
     this._listener[this.EVENT_LEAVED] = [];
     this._listener[this.EVENT_START] = [];
     this._listener[this.EVENT_END] = [];
+    this._listener[this.EVENT_UPDATE] = [];
 }
 
 Game.prototype = {
@@ -253,19 +264,14 @@ Game.prototype = {
 
     _onUpdate: function(msg) {
         this._renderer.render.call(this._renderer, msg, this._socketId);
-    }
 
-}
-
-var updatePlayers = function(world, playerId) {
-    var $ul = $('#game_players').empty();
-    for (var id in  world.players) {
-        var $li = $('<li>').text(id);
-        if (id === playerId) {
-            $li.addClass('me');
-            $ul.prepend($li);
-        } else {
-            $ul.append($li);
+        var scores = {};
+        for (var i in msg.players) {
+            var player = msg.players[i];
+            scores[player.userId] = player.score;
         }
+
+        this._trigger(this.EVENT_UPDATE, {scores: scores, remainTime: msg.remainTime});
     }
+
 }

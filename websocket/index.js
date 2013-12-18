@@ -15,8 +15,13 @@ var initSocket4Game = function(socket) {
         var userId = msg.userId;
         // socket
         socket.join(worldId);
-        // game
+        // world
         world = GameManager.getWorld(worldId);
+        if (world.isPlaying()) {
+            socket.emit('start');
+            return;
+        }
+        // player
         player = world.add(socket.id, userId);
         // notify
         io.of('/game').in(worldId).emit('joined', {joined: player, all: world.players});
@@ -25,12 +30,13 @@ var initSocket4Game = function(socket) {
     socket.on('start', function() {
         io.of('/game').in(world.id).emit('start');
         world.start(
-            function(world) {
-                io.of('/game').in(world.id).emit('update', {players: world.players});
+            function(world) { // callback
+                var remainTime = world.getRemainTimeSec();
+                io.of('/game').in(world.id).emit('update', {players: world.players, remainTime: remainTime});
             },
-            function() {
+            function() { // endCallback
                 io.of('/game').in(world.id).emit('end');
-            });
+           });
     });
 
     socket.on('disconnect', function() {
@@ -47,7 +53,8 @@ var initSocket4Game = function(socket) {
     });
 
     socket.on('key', function(data) {
-        player.updateKey(data.key, data.status);
+        if (player !== null)
+            player.updateKey(data.key, data.status);
     });
 }
 

@@ -21,7 +21,9 @@ $(function() {
 
     // 4. end event
     game.on('end', function() {
-        btnStart.text('Ended');
+        btnStart.text('Start');
+        btnStart.removeClass('disabled');
+        $('#countdown').text("0");
         notify('END');
         // get score or some other actions
         console.log(game.getMyScore());
@@ -29,16 +31,47 @@ $(function() {
 
     // 5. join event (option)
     game.on('joined', function(msg) {
+        //
+        // msg {
+        //   joined: <userId>,
+        //   all: [
+        //     <userId>,
+        //     <userId>
+        //   ]
+        // }
+        //
         notify(msg.joined + ' is joined', true);
         updateParticipant(msg.all);
     });
 
     // 6. leave event (option)
     game.on('leaved', function(msg) {
+        //
+        // msg {
+        //   leaved: <userId>,
+        //   all: [
+        //     <userId>,
+        //     <userId>
+        //   ]
+        // }
+        //
         notify(msg.leaved + ' is leaved', true);
         updateParticipant(msg.all);
     });
 
+    // 7. update event
+    game.on('update', function(msg) {
+        //
+        // msg {
+        //   scores: {
+        //     <userId>: <score:float>,
+        //     <userId>: <score:float>
+        //   },
+        //   remainTime: <time:int>
+        // }
+        //
+        $('#countdown').text(Math.round(msg.remainTime));
+    });
 
     var updateParticipant = function(players) {
         var $players = $('#players').empty();

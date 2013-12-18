@@ -42,6 +42,10 @@ World.prototype = {
 
     start: function(callback, endCallback) {
         if (this._intervalId !== null) return;
+        // reset score
+        for (var id in this.players)
+            this.players[id].resetScore();
+        // set time
         this._remainTime = this.GAME_TIME;
         var self = this;
         this._intervalId = setInterval(
@@ -62,29 +66,51 @@ World.prototype = {
         this._intervalId = null;
     },
 
+    isPlaying: function() {
+        return this._intervalId !== null;
+    },
+
+    getRemainTimeSec: function() {
+        return this._remainTime / this.FPS;
+    },
+
     _logic: function() {
         // move
         var devil = null;
-        for (var id in this.players) {
-            this.players[id].move();
-            if (this.players[id].role == 1) devil = this.players[id];
-        }
-
-        // role update
+        var players = [];
+        var invinsibles = [];
         for (var id in this.players) {
             var player = this.players[id];
-            if (player.role == 0) {
+            player.move();
+            if (player.role == 1) devil = player;
+            else if (player.role == 0) players.push(player);
+            else if (player.role < 0) invinsibles.push(player);
+        }
+
+        // role & score update for player
+        var score = 1 / this.FPS;
+        var roleChanged = false;
+        for (var pid in players) {
+            var player = players[pid];
+            player.addScore(score);
+            if (!roleChanged) {
                 var dx = player.x - devil.x;
                 var dy = player.y - devil.y;
                 if (dx * dx + dy * dy < 100) {
                     player.role = 1;
                     devil.role = -1 * this.INVINCIBLE_FRAME;
-                    break;
+                    roleChanged = true;
+                    player.addScore(-1 * score);
+                    devil.addScore(score * this.INVINCIBLE_FRAME);
                 }
-            } else if (player.role < 0) {
-                player.role++;
             }
         }
+
+        // role update for invinsible
+        for (var vid in invinsibles) {
+            invinsibles[vid].role++;
+        }
+
     }
 }
 

@@ -14,8 +14,9 @@ var Player = function(id, userId, fieldWidth, fieldHeight) {
     this.r = Math.random() * Math.PI * 2; // [degree]
     this.fovRadius = this.FOV_RADIUS;
     this.fovAngle = this.FOV_ANGLE;
-    this.role = 0; // 0 is normal, 1 is evil
-    this.keys = {
+    this.role = 0; // 0 is normal, 1 is devil
+    this.score = 0;
+    this._keys = {
         up: false,
         down: false,
         right: false,
@@ -27,16 +28,16 @@ var Player = function(id, userId, fieldWidth, fieldHeight) {
 
 Player.prototype = {
     updateKey: function(key, status) {
-        this.keys[key] = status;
+        this._keys[key] = status;
     },
 
     move: function() {
-        if (this.keys.up)    this.y -= this.SPEED_TRANSLATE;
-        if (this.keys.down)  this.y += this.SPEED_TRANSLATE;
-        if (this.keys.right) this.x += this.SPEED_TRANSLATE;
-        if (this.keys.left)  this.x -= this.SPEED_TRANSLATE;
-        if (this.keys.cw)    this.r += this.SPEED_ROTATION;
-        if (this.keys.ccw)   this.r -= this.SPEED_ROTATION;
+        if (this._keys.up)    this.y -= this.SPEED_TRANSLATE;
+        if (this._keys.down)  this.y += this.SPEED_TRANSLATE;
+        if (this._keys.right) this.x += this.SPEED_TRANSLATE;
+        if (this._keys.left)  this.x -= this.SPEED_TRANSLATE;
+        if (this._keys.cw)    this.r += this.SPEED_ROTATION;
+        if (this._keys.ccw)   this.r -= this.SPEED_ROTATION;
         // adjust
         if (this.x < 0)                      this.x = 0;
         else if (this.x > this._fieldWidth)  this.x = this._fieldWidth;
@@ -44,6 +45,18 @@ Player.prototype = {
         else if (this.y > this._fieldHeight) this.y = this._fieldHeight;
         if (this.r < 0)                      this.r += Math.PI * 2;
         else if (this.r > Math.PI * 2)       this.r -= Math.PI * 2;
+    },
+
+    updateScore: function() {
+        if (this.role === 0) this.score++;
+    },
+
+    addScore: function(score) {
+        this.score += score;
+    },
+
+    resetScore: function() {
+        this.score = 0;
     }
 }
 
