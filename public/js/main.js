@@ -109,5 +109,9 @@
       return false;
     });
 
+    // for Game
+    var game = new Game(event_id, player_id);
+    $('#largeWrap').append(game.getCanvasDom());
+
   });
 })(window.jQuery);
