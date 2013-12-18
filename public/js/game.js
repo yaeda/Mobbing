@@ -5,7 +5,7 @@ var DEBUG_MODE = false;
 var Renderer = function() {
     this.width = 500;
     this.height = 500;
-    this._canvas = $('<canvas id="game_field" width="500" height="500">')[0]
+    this._canvas = $('<canvas id="game_field" width="500" height="500">')[0];
     this._ctx = this._canvas.getContext('2d');
 }
 
