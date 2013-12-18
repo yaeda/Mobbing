@@ -93,6 +93,16 @@ function _login(req, res, next) {
   if( req.body.pass ) {
     pass = req.body.pass;
   }
+  if( typeof name === "undefined" ||
+      typeof pass === "undefined" ) {
+     console.log( "input values are invalid." );
+     res.render('index', { username: '',
+                           status: 'not logined', 
+                           login_message: 'fill up!', 
+                           register_message: '' });
+     return;
+   }
+  
 
   // DB connection
   req.dbconn.getConnection( function( err, connection ) {
