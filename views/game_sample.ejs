@@ -3,14 +3,13 @@
   <head>
     <title>Game Sample</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap//3.0.3/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/game_sample.css" />
   </head>
   <body>
     <div class="container">
       <h1>Web Game</h1>
       <div class="row">
-        <div class="col-md-7">
-          <canvas id="game_field" width="500" height="500"></canvas>
+        <div id="game_field_wrapper" class="col-md-7">
           <button id="btn_start" class="btn btn-primary btn-lg btn-block">Start</button>
         </div>
         <div class="col-md-5">
@@ -36,6 +35,6 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="/js/game.js"></script>
-    <script src="/js/main.js"></script>
+    <script src="/js/game_sample.js"></script>
   </body>
 </html>
