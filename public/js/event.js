@@ -109,9 +109,32 @@
       return false;
     });
 
-    // for Game
+    //
+    //  for Game
+    //
     var game = new Game(event_id, player_id);
-    $('#largeWrap').append(game.getCanvasDom());
+    $('#game_field_wrapper').append(game.getCanvasDom());
+
+    var $startButton = $('.btn-start');
+    var $scoreText = $('#your_score');
+    var $remainTime = $('#remain_time');
+
+    $startButton.on('click', function() {
+      game.start();
+    });
+
+    game.on('start', function() {
+      $startButton.addClass('disabled').text('PLAYING');
+    });
+
+    game.on('end', function() {
+      $startButton.removeClass('disabled').text('START');
+    })
+
+    game.on('update', function(msg) {
+      $remainTime.text(Math.round(msg.remainTime));
+      $scoreText.text(Math.round(msg.scores[player_id]));
+    });
 
   });
 })(window.jQuery);
