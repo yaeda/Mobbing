@@ -6,9 +6,9 @@
 var crypto = require('crypto');
 var User = require('../dao/User');
 
-var SQLselectN  = "select * from webgame.User WHERE name = ?";
-var SQLselectNP = "select * from webgame.User WHERE name = ? AND password = ?";
-var SQLinsert   = "insert into webgame.User (email, name, password, icon_url) VALUES(?, ?, ?, ?)";
+var SQLselectN  = "select * from User WHERE name = ?";
+var SQLselectNP = "select * from User WHERE name = ? AND password = ?";
+var SQLinsert   = "insert into User (email, name, password, icon_url) VALUES(?, ?, ?, ?)";
 
 function login(req, res, next) {
   //console.log(req.body);
