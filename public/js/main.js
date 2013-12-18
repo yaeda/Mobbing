@@ -1,97 +1,113 @@
-$(function() {
-    // event id and user id
-    var EVENT_ID = 1;
-    var USER_ID = Math.floor(Math.random() * 100);
+(function($) {
+  $(function() {
 
-    // 1. create game core instance with event id and usre id
-    var game = new Game(EVENT_ID, USER_ID);
+    var socket = new io.connect("/mobbing");
 
-    // 2. button event handling
-    var btnStart = $('#btn_start')
-                   .on('click', function() {
-                       game.start();
-                   });
-
-    // 3. start event
-    game.on('start', function() {
-        btnStart.text('Playing');
-        btnStart.addClass('disabled');
-        notify('START');
+    socket.on('connect', function(){
+        //The following should be rewrited with cookie session access to get username
+        //socket.emit('join', {username : prompt("What's your name: "),
+        socket.emit('join', {username : null,
+                            player_id: player_id,
+                            event_id: event_id});
     });
 
-    // 4. end event
-    game.on('end', function() {
-        btnStart.text('Start');
-        btnStart.removeClass('disabled');
-        $('#countdown').text("0");
-        notify('END');
-        // get score or some other actions
-        console.log(game.getMyScore());
+    socket.on("playerin", function(data) {
+      var element = $("<div>");
+      var player =data;
+
+      element.text(player.name).attr("id",player.id).attr("class","player").appendTo($("#jsPlayerBox > ul")).click(function(event){
+      });
+     $("<div>").append("<img src='/images/img_user_anonymous.gif'><div><div><h3>Name:</h3></div><div class='clear' /><div><h3>Score:</h3></div><div>").attr("class","profile_pop_box").appendTo(element);
+
+     if(player.status == "notready" )
+        $("<div>").append("...").attr("class","notready_status").appendTo(element);
+     else if(player.status == "ready")
+        $("<div>").append("Go!!!").attr("class","ready_status").appendTo(element);
+
+      //list最下へScroll
+      $("#jsPlayerBox").scrollTop($("#jsPlayerBox")[0].scrollHeight);
     });
 
-    // 5. join event (option)
-    game.on('joined', function(msg) {
-        //
-        // msg {
-        //   joined: <userId>,
-        //   all: [
-        //     <userId>,
-        //     <userId>
-        //   ]
-        // }
-        //
-        notify(msg.joined + ' is joined', true);
-        updateParticipant(msg.all);
+    socket.on("playerout", function(data) {
+      $("#jsPlayerBox > ul > div").remove(":contains('" + data.name + "')");
+
     });
 
-    // 6. leave event (option)
-    game.on('leaved', function(msg) {
-        //
-        // msg {
-        //   leaved: <userId>,
-        //   all: [
-        //     <userId>,
-        //     <userId>
-        //   ]
-        // }
-        //
-        notify(msg.leaved + ' is leaved', true);
-        updateParticipant(msg.all);
+
+    socket.on("status", function(data) {
+      if(data.msg == "ready")
+          $("#"+data.from+" .notready_status").text("Go!!!").attr("class","ready_status");
+      else if(data.msg == "notready")
+        $("#"+data.from+" .ready_status").text("...").attr("class","notready_status");
+
     });
 
-    // 7. update event
-    game.on('update', function(msg) {
-        //
-        // msg {
-        //   scores: {
-        //     <userId>: <score:float>,
-        //     <userId>: <score:float>
-        //   },
-        //   remainTime: <time:int>
-        // }
-        //
-        $('#countdown').text(Math.round(msg.remainTime));
+    socket.on("currentplayer", function(data) {
+
+      //change attr & add click Handler
+      $("#"+data.id).attr("class","player me").toggle(
+         function(event){
+            $("#"+this.id+" .notready_status").text("Go!!!").attr("class","ready_status");
+            socket.emit("status", { message: "ready" });
+         }
+         ,
+         function(event){
+            $("#"+this.id+" .ready_status").text("Ready?").attr("class","notready_status");
+            socket.emit("status", { message: "notready" });
+         }
+      );
+
+      //change status text
+      $("#"+data.id+" .notready_status").text("Ready?");
+
+      //save to socket
+      socket.myid = data.id;
+
+
     });
 
-    var updateParticipant = function(players) {
-        var $players = $('#players').empty();
-        for (var i = 0, l = players.length; i < l; i++) {
-            var $li = $('<li>').text(players[i]);
-            if (players[i] == USER_ID)
-                $players.prepend($li.addClass('me'));
-            else
-                $players.append($li);
-        }
-    }
+    socket.on("playersupdate", function(data) {
+      $("#jsPlayerBox > ul > div").remove();
+      var i;
+      for (i = 0; i < data.length; i++) {
+          var element = $("<div>")
+          var player = data[i];
 
-    var notify = function(msg, isSmall) {
-        var $notify = $('.notify');
-        if (isSmall) $notify.addClass('small');
-        else $notify.removeClass('small');
+          element.text(player.name).attr("id",player.id).attr("class","player").appendTo($("#jsPlayerBox > ul")).click(function(event){
+          });
+          $("<div>").append("<img src='/images/img_user_anonymous.gif'><div><div><h3>Name:</h3></div><div class='clear' /><div><h3>Score:</h3></div><div>").attr("class","profile_pop_box").appendTo(element);
 
-        $notify.text(msg).removeClass('fadeinout');
-        setTimeout(function() {
-            $notify.addClass('fadeinout');
-        }, 0);
-    }
-});
+          if(player.status == "notready" )
+            $("<div>").append("...").attr("class","notready_status").appendTo(element);
+          else if(player.status == "ready")
+            $("<div>").append("Go!!!").attr("class","ready_status").appendTo(element);
+      };
+      //list最下へScroll
+      $("#jsPlayerBox").scrollTop($("#jsPlayerBox")[0].scrollHeight);
+    });
+
+    socket.on("push", function(data) {
+
+      if(data.from=="server")
+        $("<p>").append(data.msg).attr("class","server_notify").appendTo($("#jsMessageBox"));
+      else if(data.from==data.to)
+        $("<p>").append(data.msg).attr("class","arrow_box_right").appendTo($("#jsMessageBox"));
+      else
+        $("<p>").append(data.msg).attr("class","arrow_box_left").appendTo($("#jsMessageBox"));
+
+      //list最下へScroll
+      $("#jsMessageBox").scrollTop($("#jsMessageBox")[0].scrollHeight);
+    });
+
+    ////Message 送信
+    $("#jsMessageForm").on('submit', function() {
+      var str = $("#jsMessageInput").val();
+      if (str != "") {
+        socket.emit("send", { message: str });
+        $("#jsMessageInput").val("");
+      }
+      return false;
+    });
+
+  });
+})(window.jQuery);
