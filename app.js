@@ -11,6 +11,7 @@ var express = require('express')
   , mysql      = require('mysql')
   , http = require('http')
   , path = require('path')
+  , wsGame = require('./websocket/game')
   , settings = require('./settings.json');
 
 // create instance
@@ -64,7 +65,7 @@ app.configure(function() {
   req.dbconn = pool;
   next();
   });
-  
+
   app.use(app.router);
 
   // error handling
@@ -108,19 +109,24 @@ app.get('/events/:event_id', event_routes.event);
 // api to get event user list
 app.resource('eventuser', require('./routes/eventuser'), apikeys);
 
+// game sample
+app.get('/game_sample', function(req, res) {
+    res.render('game_sample');
+});
 
 //Create HTTP Server
 var server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //                                      Web Socket
 ///////////////////////////////////////////////////////////////////////////////////////////////
 var socketio = require('socket.io').listen(server);
+socketio.set('log level', 1);
+
+// initialize websocket for game
+wsGame.initialize(server, socketio);
 
 /////////////////////////////////////////////////////////////////////////////////////
 function playerinfo(id,name){ this.id=id; this.name=name;this.status="notready"; }
@@ -129,7 +135,7 @@ var players = [];  // all players connected with server
 var gPlayerNum=0;//increase the user num(temp)
 
 //register player
-function register(id,name){   
+function register(id,name){
   if(id==name){
     players.push(new playerinfo(id,"ゲスト_"+gPlayerNum++));
   }
@@ -147,7 +153,7 @@ function playerById(id) {
 		if (players[i].id == id)
 			return players[i];
 	};
-	
+
 	return false;
 };
 
@@ -156,14 +162,14 @@ function playersInEvent(event_id)
 {
   var playerslist = [];
   var event = event_routes.eventById(event_id);
-  
+
   var i;
   for (i = 0; i < event.playerIds.length; i++) {
   	playerslist.push( playerById(event.playerIds[i]) );
   }
-  
+
   return playerslist;
-  
+
 }
 
 
@@ -176,16 +182,16 @@ function onClientDisconnect() {
 		//util.log("Player not found: "+this.player_id);
 		return;
 	};
-    
+
     // Remove player from players array
 	players.splice(players.indexOf(removePlayer), 1);
-    
+
     //leave the event
     var event = event_routes.leave(removePlayer.id);
     if(event) this.leave( this.player_id );
 	else
 		return;
-	
+
 	// Broadcast removed player to connected socket clients
 	this.broadcast.to(event.id).emit('push', {from:"server" , to:"othersInEvent" , msg:removePlayer.name +" が退出しました！"});
 	this.broadcast.to(event.id).emit('playerout', removePlayer);
@@ -197,43 +203,43 @@ function onClientDisconnect() {
 
 
 
-// Socket client connection 
+// Socket client connection
 socketio.of('/mobbing').on('connection', function(client) {
 
-  
+
   /////Handlerの設定
-  
+
   //Join
   client.on('join', function(param) { // クライアントから joinを受信した時
-    
+
     var player_id = param.player_id;
     if(!player_id) player_id = client.id;
-    
+
     //player 登録
     if(param.username) register(player_id, param.username);
     else register(player_id, player_id);
-    
+
     //event へjoin
     var event = event_routes.join( param.event_id , player_id );
     client.join( event.id );
     client.event_id = event.id; //save event id to socket;
     client.player_id = player_id;//save player id to socket;
-    
+
     //Event内、他のPlayerへ参加したことを通知
     client.broadcast.to(event.id).emit('push', {from:"server" , to:"othersInEvent" , msg:playerById(player_id).name +" が参加しました！"} );
     client.broadcast.to(event.id).emit('playerin', playerById(player_id));
-  
+
     //Event内、すべてのPlayerの情報を取得し、自分に振り分けられたidを取得
     client.emit('playersupdate', playersInEvent(event.id) );
     client.emit('currentplayer',  playerById(player_id));
-    
+
   });
 
 
   //Disconnected
   client.on("disconnect", onClientDisconnect); // クライアントDisconnect時
 
-  //Send 
+  //Send
   client.on('send', function(param) { // クライアントから send を受信した時
     client.emit('push', {from: client.player_id , to: client.player_id , msg: param.message}); // クライアントに push を送信
     if(client.event_id)
@@ -245,20 +251,17 @@ socketio.of('/mobbing').on('connection', function(client) {
       client.broadcast.emit('push', {from:client.player_id, to:"othersInEvent", msg: playerById(client.player_id).name +" : "+param.message}); // 他クライアントにも push イベントを送信
     }
   });
-  
+
   //status
   client.on('status', function(param) {
     //change status
     playerById(client.player_id).status = param.message;
-    
+
     //broadcast to others in the Event
   	if(client.event_id)
     {
       client.broadcast.to(client.event_id).emit('status', {from:client.player_id, to:"othersInEvent", msg: param.message}); // 他クライアントにも push イベントを送信
     }
   });
-  
+
 });
-
-
-
