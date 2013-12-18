@@ -22,13 +22,15 @@ var pool = mysql.createPool({
   host     : settings.dbhost,
   port     : settings.dbport,
   user     : settings.dbuser,
-  password : settings.dbpassword
+  password : settings.dbpassword,
+  database : settings.dbdatabase
 });
 
 
 // all environments
+
 app.configure(function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 3001);
 
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
@@ -57,6 +59,7 @@ app.configure(function() {
     if (!req.session.lasttime) {
       req.session.lasttime = parseInt((new Date)/1000);
     }
+
 
   // sample : check session data
   console.log(req.session.lasttime);
@@ -102,12 +105,16 @@ app.get('/', routes.index);
 app.post('/login', require('./routes/login').login);
 app.get('/login', require('./routes/login').logout);
 
+
 // event
-//app.resource('event', require('./routes/event'), apikeys);
 app.get('/events/:event_id', event_routes.event);
 
-// api to get event user list
-app.resource('eventuser', require('./routes/eventuser'), apikeys);
+// event list
+app.resource('events', require('./routes/events'), apikeys);
+
+
+// api to get score table
+app.resource('score', require('./routes/score'), apikeys);
 
 // game sample
 app.get('/game_sample', function(req, res) {
