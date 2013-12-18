@@ -4,51 +4,58 @@
     <meta charset="utf-8" />
     <title>Mobbing</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
   </head>
   <body>
-    <h1>Status</h1>
-    <h3 style="color:red">
-      <% if( status ) { %>
-        <%= status %>: 
-        <% if( username ) { %>
-          username = <%= username %><br>
+
+    <div class="container">
+    
+      <h1>Status</h1>
+      <h3 style="color:red">
+        <% if( status ) { %>
+          <%= status %>: 
+          <% if( username ) { %>
+            username = <%= username %><br>
+          <% } %>
         <% } %>
+      </h3>
+      <% if( username ) { %>
+        <form method="GET" action="/login">
+          <input type="submit" name="submit" value="Logout"><br>
+        </form>
       <% } %>
-    </h3>
-    <% if( username ) { %>
-      <form method="GET" action="/login">
-        <input type="submit" name="submit" value="Logout"><br>
-      </form>
-    <% } %>
 
-    <h1>Login</h1>
-    <h3 style="color:red">
-      <% if( login_message ) { %>
-        <%= login_message %><br>
-      <% } %>
-    </h3>
-    <table>
-      <form method="POST" action="/login">
-        <tr><td>Username:</td><td><input type="text" name="name"></td></tr>
-        <tr><td>Password:</td><td><input type="password" name="pass"></td></tr>
-        <tr><td></td><td><input type="submit" name="submit" value="Login"></td></tr>
+      <h1>Login</h1>
+      <h3 style="color:red">
+        <% if( login_message ) { %>
+          <%= login_message %><br>
+        <% } %>
+      </h3>
+      <form method="POST" action="/login" class="form-inline" role="form">
+        <div class="form-group">
+          <input type="text" name="name" class="form-control" placeholder="Username">
+        </div>
+        <div class="form-group">
+          <input type="password" name="pass" class="form-control" placeholder="Password">
+        </div>
+        <button type="submit" name="submit" value="Login" class="btn btn-primary">Login</button>
       </form>
-    </table>
 
-    <h1>Sign up</h1>
-    <h3 style="color:red">
-      <% if( register_message ) { %>
-        <%= register_message %><br>
-      <% } %>
-    </h3>
-    <table>
-      <form method="POST" action="/login">
-        <tr><td>Mail:</td><td><input type="text" name="mail"></td></tr>
-        <tr><td>Username:</td><td><input type="text" name="name"></td></tr>
-        <tr><td>Password:</td><td><input type="password" name="pass"></td></tr>
-        <tr><td></td><td><input type="submit" name="submit" value="Register"></td></tr>
+      <h1>Sign up</h1>
+      <h3 style="color:red">
+        <% if( register_message ) { %>
+          <%= register_message %><br>
+        <% } %>
+      </h3>
+      <form method="POST" action="/login" class="form-signin" role="form">
+        <input type="text" name="mail" class="form-control" placeholder="Email address">
+        <input type="text" name="name" class="form-control" placeholder="Username">
+        <input type="password" name="pass" class="form-control" placeholder="Password">
+        <input type="submit" name="submit" value="Register" class="btn btn-primary btn-block">
       </form>
-    </table>
+
+    </div> <!-- /container -->
 
   </body>
 </html>
