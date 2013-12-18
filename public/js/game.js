@@ -5,7 +5,7 @@ var DEBUG_MODE = false;
 var Renderer = function() {
     this.width = 500;
     this.height = 500;
-    this._canvas = document.getElementById('game_field');
+    this._canvas = $('<canvas id="game_field" width="500" height="500">')[0]
     this._ctx = this._canvas.getContext('2d');
 }
 
@@ -93,7 +93,12 @@ Renderer.prototype = {
             }
         }
         this._ctx.restore();
+    },
+
+    getCanvasDom: function() {
+        return this._canvas;
     }
+
 }
 
 var keyCtrl = function(callback) {
@@ -219,6 +224,10 @@ Game.prototype = {
             var index = list.indexOf(listener);
             list.splice(index, 1);
         }
+    },
+
+    getCanvasDom: function() {
+        return this._renderer.getCanvasDom()
     },
 
     _trigger: function(event, data) {
