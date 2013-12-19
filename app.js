@@ -9,8 +9,12 @@ var express = require('express')
   , routes = require('./routes')
   , event_routes = require('./routes/event')
   , mysql      = require('mysql')
-  , http = require('http')
-  , path = require('path')
+  , http    = require('http')
+  , path    = require('path')
+  , MemoryStore  = express.session.MemoryStore
+  , sessionStore = new MemoryStore()
+  , Session = express.session.Session
+  , connect = require("express/node_modules/connect")
   , wsGame = require('./websocket/game')
   , settings = require('./settings.json');
 
@@ -37,15 +41,24 @@ app.configure(function() {
 
   app.use(express.favicon());
   app.use(express.logger('dev'));
+  
+  // secret key for session
+  app.set('secretKey', 'mySecret');
+  
+  // session key to store session id in cookie
+  app.set('cookieSessionKey', 'sid');
   app.use(express.bodyParser());
   app.use(express.json());
   app.use(express.urlencoded());
   app.use(express.methodOverride());
 
-  app.use(express.cookieParser()); // needed to use session
+  app.use(express.cookieParser(app.get('secretKey'))); // needed to use session
   app.use(express.session(
-    {secret : 'secret',
-     cookie : {maxAge: 1000 * 60 * 60 * 24 * 7} // 1week
+    {
+    key : app.get('cookieSessionKey')
+  , secret : app.get('secretKey')
+  , store: sessionStore
+  , cookie : {maxAge: 1000 * 60 * 60 * 24 * 7} // 1week
     }
   ));
 
@@ -125,7 +138,6 @@ app.get('/game_sample', function(req, res) {
 var server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //                                      Web Socket
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +145,49 @@ var socketio = require('socket.io').listen(server);
 socketio.set('log level', 1);
 
 // initialize websocket for game
-wsGame.initialize(server, socketio);
+var cookiename = 'cookie';
+
+// share session between express and socket.id
+socketio.set('authorization', function(handshakeData, callback) {
+  console.log(handshakeData);
+  var header_cookie = handshakeData.headers[cookiename];
+  if (header_cookie) {
+    // get cookie
+    var cookie = require('cookie').parse(decodeURIComponent(header_cookie));
+    cookie = connect.utils.parseSignedCookies(cookie, app.get('secretKey'));
+    var sessionID = cookie[app.get('cookieSessionKey')];
+    // get session
+    sessionStore.get(sessionID, function(err, session) {
+      if (err) {
+        // in case of no session
+        console.dir(err);
+        callback(err.message, false);
+      }
+      else if (!session) {
+        console.log('session not found');
+        callback('session not found', false);
+      }
+      else {
+        console.log("authorization success");
+        
+        // set session data to socket.io
+        handshakeData.cookie = cookie;
+        handshakeData.sessionID = sessionID;
+        handshakeData.sessionStore = sessionStore;
+        handshakeData.session = new Session(handshakeData, session);
+        
+        callback(null, true);
+      }
+    });
+  }
+  else {
+    // in case of no cookie
+    return callback('cookie not found', false);
+  }
+});
+
+
+wsGame.initialize(server, socketio, cookiename);
 
 /////////////////////////////////////////////////////////////////////////////////////
 function playerinfo(id,name){ this.id=id; this.name=name;this.status="notready"; }
@@ -180,31 +234,7 @@ function playersInEvent(event_id)
 }
 
 
-// Socket client Disconnect Handler
-function onClientDisconnect() {
-	var removePlayer = playerById(this.player_id);
 
-	// Player not found
-	if (!removePlayer) {
-		//util.log("Player not found: "+this.player_id);
-		return;
-	};
-
-    // Remove player from players array
-	players.splice(players.indexOf(removePlayer), 1);
-
-    //leave the event
-    var event = event_routes.leave(removePlayer.id);
-    if(event) this.leave( this.player_id );
-	else
-		return;
-
-	// Broadcast removed player to connected socket clients
-	this.broadcast.to(event.id).emit('push', {from:"server" , to:"othersInEvent" , msg:removePlayer.name +" が退出しました！"});
-	this.broadcast.to(event.id).emit('playerout', removePlayer);
-
-
-};
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -213,12 +243,40 @@ function onClientDisconnect() {
 // Socket client connection
 socketio.of('/mobbing').on('connection', function(client) {
 
+  // Socket client Disconnect Handler
+  var fnClientDisconnect = function() {
+  	var removePlayer = playerById(client.player_id);
+ console.log(client); 
+  	// Player not found
+  	if (!removePlayer) {
+  		//util.log("Player not found: "+this.player_id);
+      console.log('can not find');
+      return;
+  	};
+  
+      // Remove player from players array
+  	players.splice(players.indexOf(removePlayer), 1);
+  
+    //leave the event
+    var userId;
+    if (client.handshake.session && client.handshake.session.user) {
+      userId = client.handshake.session.user.id;
+    }
+    console.log(userId);
+    var event = event_routes.leave(pool, removePlayer.id, userId);
+    if(event) this.leave( this.player_id);
+  	else
+  		return;
+  
+  	// Broadcast removed player to connected socket clients
+  	this.broadcast.to(event.id).emit('push', {from:"server" , to:"othersInEvent" , msg:removePlayer.name +" が退出しました！"});
+  	this.broadcast.to(event.id).emit('playerout', removePlayer);
+  };
 
   /////Handlerの設定
 
   //Join
   client.on('join', function(param) { // クライアントから joinを受信した時
-
     var player_id = param.player_id;
     if(!player_id) player_id = client.id;
 
@@ -226,25 +284,31 @@ socketio.of('/mobbing').on('connection', function(client) {
     if(param.username) register(player_id, param.username);
     else register(player_id, player_id);
 
+    var _cb = function(event) {
+      client.join( event.id );
+      client.event_id = event.id; //save event id to socket;
+      client.player_id = player_id;//save player id to socket;
+  
+      //Event内、他のPlayerへ参加したことを通知
+      client.broadcast.to(event.id).emit('push', {from:"server" , to:"othersInEvent" , msg:playerById(player_id).name +" が参加しました！"} );
+      client.broadcast.to(event.id).emit('playerin', playerById(player_id));
+  
+      //Event内、すべてのPlayerの情報を取得し、自分に振り分けられたidを取得
+      client.emit('playersupdate', playersInEvent(event.id) );
+      client.emit('currentplayer',  playerById(player_id));
+    };
+
     //event へjoin
-    var event = event_routes.join( param.event_id , player_id );
-    client.join( event.id );
-    client.event_id = event.id; //save event id to socket;
-    client.player_id = player_id;//save player id to socket;
-
-    //Event内、他のPlayerへ参加したことを通知
-    client.broadcast.to(event.id).emit('push', {from:"server" , to:"othersInEvent" , msg:playerById(player_id).name +" が参加しました！"} );
-    client.broadcast.to(event.id).emit('playerin', playerById(player_id));
-
-    //Event内、すべてのPlayerの情報を取得し、自分に振り分けられたidを取得
-    client.emit('playersupdate', playersInEvent(event.id) );
-    client.emit('currentplayer',  playerById(player_id));
-
+    var userId;
+    if (client.handshake.session && client.handshake.session.user) {
+      userId = client.handshake.session.user.id;
+    }
+    event_routes.join(pool, param.event_id , player_id, userId, _cb);
   });
 
 
   //Disconnected
-  client.on("disconnect", onClientDisconnect); // クライアントDisconnect時
+  client.on("disconnect", fnClientDisconnect); // クライアントDisconnect時
 
   //Send
   client.on('send', function(param) { // クライアントから send を受信した時

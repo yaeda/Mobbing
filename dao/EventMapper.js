@@ -32,7 +32,7 @@ var EventMapper = {
       
       var sqlUtil = new SQLUtil();
       var isTransaction = false;
-      if (options.isTransaction && options.isTransaction === true) {
+      if (options && options.isTransaction && options.isTransaction === true) {
         isTransaction = true;
       }
             
@@ -107,7 +107,7 @@ var EventMapper = {
       
       var sqlUtil = new SQLUtil();
       var isTransaction = false;
-      if (options.isTransaction && options.isTransaction === true) {
+      if (options && options.isTransaction && options.isTransaction === true) {
         isTransaction = true;
       }
             
@@ -177,7 +177,7 @@ var EventMapper = {
             
       var sqlUtil = new SQLUtil();
       var isTransaction = false;
-      if (options.isTransaction && options.isTransaction === true) {
+      if (options && options.isTransaction && options.isTransaction === true) {
         isTransaction = true;
       }
       
@@ -274,7 +274,7 @@ var EventMapper = {
             
       var sqlUtil = new SQLUtil();
       var isTransaction = false;
-      if (options.isTransaction && options.isTransaction === true) {
+      if (options && options.isTransaction && options.isTransaction === true) {
         isTransaction = true;
       }
       
@@ -408,7 +408,7 @@ var EventMapper = {
             
       var sqlUtil = new SQLUtil();
       var isTransaction = false;
-      if (options.isTransaction && options.isTransaction === true) {
+      if (options && options.isTransaction && options.isTransaction === true) {
         isTransaction = true;
       }
       
@@ -431,7 +431,7 @@ var EventMapper = {
             sqlUtil.rollback(err, cb);
             return;
           }
-          sqlUtil.query(conn, query, null, _cbResult);
+          sqlUtil.query(conn, sql, null, _cbResult);
         };
                 
         if (isTransaction === true) {

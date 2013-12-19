@@ -58,6 +58,10 @@ module.exports = {
 
 
 ////////////////////////////////////Following is Added by wang///////////////////////////////////////////
+var Score       = require('../dao/Score')
+  , ScoreMapper = require('../dao/ScoreMapper')
+  , ErrorCode = require('../lib/errorcode');
+
 
 function eventinfo(event_id){this.id = event_id;this.playerIds = [];}
 var events = [];   // all events in server
@@ -94,24 +98,37 @@ function eventByPlayerId(id) {
 	return false;
 };
 
-//player join 
-function join( eventId, playerId)
+// player join
+// next step, we need to use userid as playerId
+function join(pool, eventId, playerId, userId, cb)
 {
   var event = eventById(eventId);
   if(event==false) event = createEvent(eventId);
-  
   event.playerIds.push(playerId);
-  
-  return event;
 
+  // add data to db
+  var score = Score.create();
+  score.User_id  = userId;
+  score.Event_id = eventId;
+
+  var _cb = function(err, records) {
+    return cb(event);
+  };
+  ScoreMapper.insert(pool, score, null, _cb);
 }
 
 //player leave
-function leave(playerId)
+function leave(pool, playerId, userId)
 {
   var event = eventByPlayerId(playerId);
   if(event)
   {
+    // delete data from db
+    var score = Score.create();
+    score.User_id  = userId;
+    score.Event_id = event.id;
+    
+    ScoreMapper.delete(pool, score, {que: 'score IS NULL'});
     event.playerIds.splice(event.playerIds.indexOf(playerId), 1);
     return event;
   }
@@ -127,12 +144,12 @@ exports.join = join;
 exports.leave = leave;
 
 exports.event = function(req, res){
-  //event id‚ğæ“¾
+  //event idã‚’å–å¾—
   var str = req.url;
   var strArry = str.split("/");
   var event_id = strArry[strArry.length-1];
   
-  //event‚ğæ“¾,‘¶İ‚µ‚È‚¢ê‡Create
+  //eventã‚’å–å¾—,å­˜åœ¨ã—ãªã„å ´åˆCreate
   var event = eventById(event_id);
   if(event==false) event = createEvent(event_id);
   

@@ -71,14 +71,15 @@ var Score = {
   },
   getKeys: function() {
     return {
-      id : 'PRI',
-      User_id : 'MUL',
-      Event_id : 'MUL'
+      id : 'MUL',
+      User_id : 'PRI',
+      Event_id : 'PRI'
     };
   },
   getPrimaryKey: function() {
     return {
-      id : 'PRI'
+      User_id : 'PRI',
+      Event_id : 'PRI'
     };
   },
   getTableName: function() {

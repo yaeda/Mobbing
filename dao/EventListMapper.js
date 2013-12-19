@@ -46,7 +46,7 @@ var EventMapper = {
       
       var sqlUtil = new SQLUtil();
       var isTransaction = false;
-      if (options.isTransaction && options.isTransaction === true) {
+      if (options && options.isTransaction && options.isTransaction === true) {
         isTransaction = true;
       }
             
