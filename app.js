@@ -148,7 +148,6 @@ var cookiename = 'cookie';
 
 // share session between express and socket.id
 socketio.set('authorization', function(handshakeData, callback) {
-  console.log(handshakeData);
   var header_cookie = handshakeData.headers[cookiename];
   if (header_cookie) {
     // get cookie
@@ -245,7 +244,6 @@ socketio.of('/mobbing').on('connection', function(client) {
   // Socket client Disconnect Handler
   var fnClientDisconnect = function() {
   	var removePlayer = playerById(client.player_id);
- console.log(client); 
   	// Player not found
   	if (!removePlayer) {
   		//util.log("Player not found: "+this.player_id);
@@ -261,7 +259,6 @@ socketio.of('/mobbing').on('connection', function(client) {
     if (client.handshake.session && client.handshake.session.user) {
       userId = client.handshake.session.user.id;
     }
-    console.log(userId);
     var event = event_routes.leave(pool, removePlayer.id, userId);
     if(event) this.leave( this.player_id);
   	else
