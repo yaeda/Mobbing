@@ -44,53 +44,35 @@
     </div>
     
     <div class="container">
-    
-      <h1>Status</h1>
-      <h3 style="color:red">
-        <% if( status ) { %>
-          <%= status %>: 
-          <% if( username ) { %>
-            username = <%= username %><br>
+      <div class="row">
+        <div class="col-xs-12 col-sm-8">
+          <div class="jumbotron">
+            <h1>Mobbing</h1>
+            <p>Mobbing は．．．</p>
+          </div>
+        </div>
+        <div class="col-xs-6 col-sm-4">
+          <% if( login_message ) { %>
+            <div class="alert alert-danger">
+              <%= login_message %>
+            </div>
           <% } %>
-        <% } %>
-      </h3>
-      <% if( username ) { %>
-        <form method="GET" action="/login">
-          <input type="submit" name="submit" value="Logout"><br>
-        </form>
-      <% } %>
-
-      <h1>Login</h1>
-      <h3 style="color:red">
-        <% if( login_message ) { %>
-          <%= login_message %><br>
-        <% } %>
-      </h3>
-      <form method="POST" action="/login" class="form-inline" role="form">
-        <div class="form-group">
-          <input type="text" name="name" class="form-control" placeholder="Username">
+          <h2>Register</h2>
+          <% if( register_message ) { %>
+            <div class="alert alert-danger">
+              <%= register_message %>
+            </div>
+          <% } %>
+          <form method="POST" action="/login" class="form-signin" role="form">
+            <input type="text" name="mail" class="form-control" placeholder="Email address">
+            <input type="text" name="name" class="form-control" placeholder="Username">
+            <input type="password" name="pass" class="form-control" placeholder="Password">
+            <input type="submit" name="submit" value="Register" class="btn btn-primary btn-block">
+          </form>
         </div>
-        <div class="form-group">
-          <input type="password" name="pass" class="form-control" placeholder="Password">
-        </div>
-        <button type="submit" name="submit" value="Login" class="btn btn-primary">Login</button>
-      </form>
-
-      <h1>Sign up</h1>
-      <h3 style="color:red">
-        <% if( register_message ) { %>
-          <%= register_message %><br>
-        <% } %>
-      </h3>
-      <form method="POST" action="/login" class="form-signin" role="form">
-        <input type="text" name="mail" class="form-control" placeholder="Email address">
-        <input type="text" name="name" class="form-control" placeholder="Username">
-        <input type="password" name="pass" class="form-control" placeholder="Password">
-        <input type="submit" name="submit" value="Register" class="btn btn-primary btn-block">
-      </form>
-
+      </div>
     </div>
-    
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Latest compiled and minified JavaScript -->
