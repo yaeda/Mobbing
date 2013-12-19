@@ -17,7 +17,7 @@
 
       element.text(player.name).attr("id",player.id).attr("class","player").appendTo($("#jsPlayerBox > ul")).click(function(event){
       });
-     $("<div>").append("<img src='/images/img_user_anonymous.gif'><div><div><h3>Name:</h3></div><div class='clear' /><div><h3>Score:</h3></div><div>").attr("class","profile_pop_box").appendTo(element);
+     $("<div>").append("<img src='/images/img_user_anonymous.gif'><div><div><h3>Name: " + player.name + "</h3></div><div class='clear' /><div><h3>Score: ****</h3></div><div>").attr("class","profile_pop_box").appendTo(element);
 
      if(player.status == "notready" )
         $("<div>").append("...").attr("class","notready_status").appendTo(element);
@@ -75,7 +75,7 @@
 
           element.text(player.name).attr("id",player.id).attr("class","player").appendTo($("#jsPlayerBox > ul")).click(function(event){
           });
-          $("<div>").append("<img src='/images/img_user_anonymous.gif'><div><div><h3>Name:</h3></div><div class='clear' /><div><h3>Score:</h3></div><div>").attr("class","profile_pop_box").appendTo(element);
+          $("<div>").append("<img src='/images/img_user_anonymous.gif'><div><div><h3>Name: " + player.name + "</h3></div><div class='clear' /><div><h3>Score: ****</h3></div><div>").attr("class","profile_pop_box").appendTo(element);
 
           if(player.status == "notready" )
             $("<div>").append("...").attr("class","notready_status").appendTo(element);
