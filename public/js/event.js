@@ -6,7 +6,7 @@
     socket.on('connect', function(){
         //The following should be rewrited with cookie session access to get username
         //socket.emit('join', {username : prompt("What's your name: "),
-        socket.emit('join', {username : null,
+        socket.emit('join', {username : player_name,
                             player_id: player_id,
                             event_id: event_id});
     });
