@@ -331,4 +331,9 @@ socketio.of('/mobbing').on('connection', function(client) {
     }
   });
 
+  // updateScore
+  client.on('updateScore', function(param) {
+    event_routes.updateScore(pool, client.handshake.session.user.id, param.score);
+  });
+
 });

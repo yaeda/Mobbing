@@ -129,11 +129,12 @@
 
     game.on('end', function() {
       $startButton.removeClass('disabled').text('START');
+      socket.emit('updateScore', {score: game.getMyScore()});
     })
 
     game.on('update', function(msg) {
       $remainTime.text(Math.round(msg.remainTime));
-      $scoreText.text(Math.round(msg.scores[player_id]));
+      $scoreText.text(msg.scores[player_id]);
     });
 
   });

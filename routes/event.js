@@ -143,12 +143,34 @@ function leave(pool, playerId, userId)
   return false;
 }
 
+function updateScore(pool, userId, value)
+{
+  var event = eventByPlayerId(userId);
+  if (event !== null && event !== undefined)
+  {
+    // update data from db
+    var score = Score.create();
+    score.User_id = userId;
+    score.Event_id = event.id;
+
+    var _cb = function(err, retScore) {
+      retScore[0].score = value;
+      ScoreMapper.update(pool, retScore, null, function(err, hoge) {
+        console.log(hoge);
+      });
+    }
+
+    ScoreMapper.select(pool, score, null, _cb)
+  }
+}
+
 
 ///////exports
 exports.eventlist = events;
 exports.eventById = eventById;
 exports.join = join;
 exports.leave = leave;
+exports.updateScore = updateScore;
 
 exports.event = function(req, res){
 
