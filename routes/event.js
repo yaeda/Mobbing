@@ -12,6 +12,15 @@ function execute(req, res, next, method, view) {
     return;
   }
   
+  var username;
+  var userid;
+  if( req.session.user.name ) {
+    username = req.session.user.name;
+  }
+  if( req.session.user.id ) {
+    userid = req.session.user.id;
+  }
+  
   var fnParams = function(cb) {
     var params = {limit: 20};
     var reqparams = Request.getParameter(req);
@@ -132,11 +141,20 @@ exports.event = function(req, res){
   var strArry = str.split("/");
   var event_id = strArry[strArry.length-1];
   
+  var username;
+  var userid;
+  if( req.session.user.name ) {
+    username = req.session.user.name;
+  }
+  if( req.session.user.id ) {
+    userid = req.session.user.id;
+  }
+  
   //event‚ğæ“¾,‘¶İ‚µ‚È‚¢ê‡Create
   var event = eventById(event_id);
   if(event==false) event = createEvent(event_id);
   
-  res.render('event', { event_id: event_id });
+  res.render('event', { event_id: event_id, username: username, userid: userid });
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
