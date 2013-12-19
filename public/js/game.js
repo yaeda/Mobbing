@@ -181,9 +181,11 @@ var Game = function(eventId, userId) {
         self._socket.emit('key', {key: key, status: status});
     });
 
+    // datas
     this._socketId = null;
     this._eventId = eventId;
     this._userId = userId;
+    this._scores = null;
 
     this._renderer = new Renderer();
 
@@ -208,8 +210,7 @@ Game.prototype = {
     },
 
     getMyScore: function() {
-        // TODO : Impl
-        return Math.floor(Math.random() * 100);
+        return Math.floor(this._scores[this._userId]);
     },
 
     on: function(event, listener) {
@@ -277,8 +278,9 @@ Game.prototype = {
         var scores = {};
         for (var i in msg.players) {
             var player = msg.players[i];
-            scores[player.userId] = player.score;
+            scores[player.userId] = Math.floor(player.score);
         }
+        this._scores = scores;
 
         this._trigger(this.EVENT_UPDATE, {scores: scores, remainTime: msg.remainTime});
     }
