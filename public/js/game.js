@@ -124,7 +124,7 @@ var keyCtrl = function(callback) {
             callback(key, status);
     };
     $(window).keydown(function(e) {
-        e.preventDefault();
+        //e.preventDefault();
         sendKey(e.keyCode, e.shiftKey, true);
         // for Shift and Space combination
         if (e.keyCode === SPACE_KEY_CODE) isSpacePressed = true;
