@@ -35,8 +35,13 @@ World.prototype = {
         if (numPlayers === 0) {
             this.stop();
         } else if (role === 1) {
-            var nextEvilId = Math.floor(Math.random() * numPlayers);
-            this.players[nextEvilId].role = 1;
+          var nextEvilId = Math.floor(Math.random() * numPlayers);
+          var index = 0;
+          for (var id in this.players) {
+              if (index === nextEvilId) this.players[id].role = 1;
+              index++;
+          }
+
         }
     },
 
