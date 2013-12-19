@@ -42,10 +42,23 @@ function fnRequest(conn, req, mapper, method, view, cb) {
 
 
 function execute(req, res, next, method, view) {
+
+  // no session case
+  if( !req.session.user ) {
+    res.redirect('/');
+  }
+
   var dbconn = req.dbconn;
   if (!dbconn) {
     res.jsonp({result: 'FAIL', error: 'no db connection'});
     return;
+  }
+
+  var username;
+  var userid;
+  if( req.session && req.session.user ) {
+    username = req.session.user.name;
+    userid = req.session.user.id;
   }
 
   var _fnRender = function(err, view, data) {
@@ -54,7 +67,7 @@ function execute(req, res, next, method, view) {
 
   var _fnShow = function(method, view) {
     var _cbShow = function(err, records) {
-      _fnRender(err, view, {events: records});
+      _fnRender(err, view, {events: records, username: username, userid: userid});
     };
     fnRequest(dbconn, req, EventListMapper, method, view, _cbShow);
   };
@@ -67,7 +80,7 @@ function execute(req, res, next, method, view) {
   };
 
   if (!method && (view === 'new' || view === 'edit')) {
-    _fnRender(null, view);
+    _fnRender(null, view, {username: username, userid: userid});
     return;
   } else if (view === 'show') {
     _fnShow(method, view);

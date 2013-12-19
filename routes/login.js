@@ -142,10 +142,13 @@ function _logout(req, res, next) {
   if( submit === "Logout" ) {
     console.log(req.session);
     req.session.destroy();
+    res.redirect('/');
+/*
     res.render('index', {  username: '',
                            status: 'not logined', 
                            login_message: '', 
                            register_message: '' });
+*/
   }
 };
 
