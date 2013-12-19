@@ -11,6 +11,7 @@
     "ejs": "*",
     "async": "*",
     "mysql": "~2.0.0-rc1",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "cookie": "*"
   }
 }
