@@ -59,7 +59,17 @@ function _register(req, res, next) {
   
   // DB connection
   req.dbconn.getConnection( function( err, connection ) {
-    connection.query( SQLselectN, [name], function( err, results ) {
+    if( err ) {
+      console.log( err );
+      res.render('index', { login_message: 'Database error', username: '', status: '', register_message: '' });
+      return;
+    }
+   connection.query( SQLselectN, [name], function( err, results ) {
+      if( err ) {
+        console.log( err );
+        res.render('index', { login_message: 'Database error', username: '', status: '', register_message: '' });
+        return;
+      }
       if( results.length != 0 ) {
         res.render('index', {  username: '',
                                status: 'not logined', 
@@ -71,6 +81,11 @@ function _register(req, res, next) {
         var pass_hash = _md5_hex( pass );
         connection.query( SQLinsert, [mail, name, pass_hash, ''], function( err, results ) {
           connection.query( SQLselectN, [name], function( err, results ) {
+            if( err ) {
+              console.log( err );
+              res.render('index', { login_message: 'Database error', username: '', status: '', register_message: '' });
+              return;
+            }
             _set_userInfo_to_session(req.session, results[0]);
             connection.release();
             res.redirect('/events');
@@ -106,9 +121,19 @@ function _login(req, res, next) {
 
   // DB connection
   req.dbconn.getConnection( function( err, connection ) {
+    if( err ) {
+      console.log( err );
+      res.render('index', { login_message: 'Database error', username: '', status: '', register_message: '' });
+      return;
+    }
     var pass_hash = _md5_hex( pass );
     connection.query( SQLselectNP, [name, pass_hash], function( err, results ) {
-      if( results === null || results === undefined || results.length === 0 ) {
+      if( err ) {
+        console.log( err );
+        res.render('index', { login_message: 'Database error', username: '', status: '', register_message: '' });
+        return;
+      }
+     if( results === null || results === undefined || results.length === 0 ) {
         console.log( 'login error!' );
         res.render('index', {  username: '',
                                status: 'not logined', 
