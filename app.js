@@ -60,7 +60,6 @@ app.configure(function() {
       req.session.lasttime = parseInt((new Date)/1000);
     }
 
-
   // sample : check session data
   console.log(req.session.lasttime);
 
