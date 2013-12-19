@@ -8,15 +8,15 @@ body {
 }
 
 #wrap { width:100%;height:600px;text-align:left; margin:0px auto;color:#2c3e50; background-color: #FFFFFF}
-#header {padding:0% 1%;width:98%; height:5%;color: #FFFFFF; background-color: #FE8B05/*#3498db*/;}
+#header {padding:0% 1%;width:100%; height:5%;color: #FFFFFF; background-color: #FE8B05/*#3498db*/;}
 #inner { width:100%;height:90%; float:left;margin:0 0px; background-color: #FF0000}
 #largeWrap {padding:0% 1%;width:78%; height:100%;float:left;  background-color: #FFFFFF}
-#sideBetaWrap { padding:0% 0%; width:20%; height:100%;float:right;  background-color:#bdc3c7}
-#footer { padding:0% 1%;width:98%;       height:5%; clear:both; background-color: #EFEECC/*#95a5a6*/}
+#sideBetaWrap { padding:0% 0%; width:22%; height:100%;float:right;  background-color:#bdc3c7}
+#footer { padding:0% 1%;width:100%;       height:5%; clear:both; background-color: #EFEECC/*#95a5a6*/}
 
-#jsPlayerBox {padding:0% 1%;width:98%;overflow-y: auto; height:40%; float:left; background-color: #ecf0f1;}
+#jsPlayerBox {padding:0% 1%;width:100%;overflow-y: auto; height:40%; float:left; background-color: #ecf0f1;}
 
-#jsMessageBox {padding:0% 1%;width:98%; height:45%;overflow: auto; float:left; /*color: #00A2E8*/ ; background-color:#ecf0f1}
+#jsMessageBox {padding:0% 1%;width:100%; height:45%;overflow: auto; float:left; /*color: #00A2E8*/ ; background-color:#ecf0f1}
 #jsMessageForm {width:100%; float:left; height:10%;}
 #jsMessageInput {width:80%; float:left; }
 
@@ -109,9 +109,11 @@ a {
 
 .profile_pop_box img {
    float:left;
+   height:100%;
 }
 .profile_pop_box div{
    float:left;
+   height:100%;
    margin: 0px 10px;
    padding:0px 10px;
    border:0px;
@@ -125,6 +127,16 @@ a {
    padding:0px 0px;
    border:0px;
    line-height:0em;
+
+}
+
+.profile_pop_box div div h3{
+   width:100%;
+   height:100%;
+   float:left;
+   margin: 0px 0px;
+   padding:0px 0px;
+   border:0px;
 
 }
 
