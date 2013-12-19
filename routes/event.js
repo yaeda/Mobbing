@@ -14,10 +14,8 @@ function execute(req, res, next, method, view) {
   
   var username;
   var userid;
-  if( req.session.user.name ) {
+  if( req.session && req.session.user ) {
     username = req.session.user.name;
-  }
-  if( req.session.user.id ) {
     userid = req.session.user.id;
   }
   
@@ -136,6 +134,12 @@ exports.join = join;
 exports.leave = leave;
 
 exports.event = function(req, res){
+
+  // no user info in session
+  if( !req.session.user ) {
+    res.redirect('/');
+  }
+
   //event id‚ðŽæ“¾
   var str = req.url;
   var strArry = str.split("/");
@@ -143,10 +147,8 @@ exports.event = function(req, res){
   
   var username;
   var userid;
-  if( req.session.user.name ) {
+  if( req.session && req.session.user ) {
     username = req.session.user.name;
-  }
-  if( req.session.user.id ) {
     userid = req.session.user.id;
   }
   

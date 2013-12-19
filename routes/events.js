@@ -42,6 +42,12 @@ function fnRequest(conn, req, mapper, method, view, cb) {
 
 
 function execute(req, res, next, method, view) {
+
+  // no session case
+  if( !req.session.user ) {
+    res.redirect('/');
+  }
+
   var dbconn = req.dbconn;
   if (!dbconn) {
     res.jsonp({result: 'FAIL', error: 'no db connection'});
@@ -50,10 +56,8 @@ function execute(req, res, next, method, view) {
 
   var username;
   var userid;
-  if( req.session.user.name ) {
+  if( req.session && req.session.user ) {
     username = req.session.user.name;
-  }
-  if( req.session.user.id ) {
     userid = req.session.user.id;
   }
 
