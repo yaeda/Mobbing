@@ -1,14 +1,48 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <title>Mobbing</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel='stylesheet' href='/css/styles.css' />
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
   </head>
   <body>
 
+
+
+    <div class="navbar navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="./">Mobbing</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <form method="POST" action="/login" class="navbar-form navbar-right" role="form">
+            <div class="form-group">
+              <input type="text" name="name" placeholder="Username" class="form-control">
+            </div>
+            <div class="form-group">
+              <input type="password" name="pass" placeholder="Password" class="form-control">
+            </div>
+            <button type="submit" name="submit" value="Login" class="btn btn-success">Login</button>
+          </form>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+    
     <div class="container">
     
       <h1>Status</h1>
@@ -55,7 +89,12 @@
         <input type="submit" name="submit" value="Register" class="btn btn-primary btn-block">
       </form>
 
-    </div> <!-- /container -->
+    </div>
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 
   </body>
 </html>
