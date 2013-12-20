@@ -154,10 +154,12 @@ function updateScore(pool, userId, value)
     score.Event_id = event.id;
 
     var _cb = function(err, retScore) {
-      retScore[0].score = value;
-      ScoreMapper.update(pool, retScore, null, function(err, hoge) {
-        console.log(hoge);
-      });
+      if (retScore && retScore.length > 0) {
+        retScore[0].score = value;
+        ScoreMapper.update(pool, retScore, null, function(err, hoge) {
+          console.log(hoge);
+        });
+      }
     }
 
     ScoreMapper.select(pool, score, null, _cb)
@@ -179,7 +181,7 @@ exports.event = function(req, res){
     res.redirect('/');
   }
 
-  //event id‚ğæ“¾
+  //event idã‚’å–å¾—
   var str = req.url;
   var strArry = str.split("/");
   var event_id = strArry[strArry.length-1];
@@ -191,7 +193,7 @@ exports.event = function(req, res){
     userid = req.session.user.id;
   }
   
-  //event‚ğæ“¾,‘¶İ‚µ‚È‚¢ê‡Create
+  //eventã‚’å–å¾—,å­˜åœ¨ã—ãªã„å ´åˆCreate
   var event = eventById(event_id);
   if(event==false) event = createEvent(event_id);
   
